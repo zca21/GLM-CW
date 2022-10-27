@@ -1,17 +1,21 @@
 ---
 title: "Untitled"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 date: "2022-10-27"
 ---
-```{r}
-#Inital enviroment setup
+```{r,echo=F}
+#Initial environment setup
 setwd("~/Desktop/GLM/Coursework/GLM-CW")
 expend.df <- read.table("expenditure.txt")
 library(tidyverse)
 library(kableExtra)
+library(gridExtra)
+library(broom)
 ```
 
-```{r}
+```{r,echo=F}
 #Data cleaning
 
 #coding variables as factors
@@ -22,17 +26,140 @@ expend.df$hh.size <- factor(expend.df$hh.size,levels=c(1:5),labels = c("1 person
 expend.df$hh.adults <- factor(expend.df$hh.adults,levels = c(1:4), labels = c("1 adult","2 adults","3 adults","4+ adults"))
 
 ```
+## Task 1:
 
-```{r}
+```{r,echo=F}
+#Histogram to examine the expenditure
+hist(expend.df$expenditure,breaks = 20,
+     xlab = "Total weekly household expenditure (GBP)",
+     main = "Histogram of expenditure")
+
+#Creating the 
+#scatter plot to look at relationship between income and expenditure
+p1<-ggplot(data=expend.df,aes(x=income,y=expenditure))+
+  geom_point(size=0.2)+
+  xlab("Gross weekly average household income (GBP)")+
+  ylab("Total expenditure")+
+  theme(axis.text=element_text(size=6),
+        axis.title=element_text(size=6,face="bold"))
+
+#boxplots
+p2<-ggplot(data=expend.df,aes(y=expenditure,x=house.ten,fill=house.ten))+
+  geom_boxplot()+
+  xlab("Household tenure")+
+  guides(fill=F)
+
+#scale_fill_discrete(name="Household\ntenure")
+
+p3<-ggplot(data=expend.df,aes(y=expenditure,x=sex.hh,fill=sex.hh))+
+  geom_boxplot()+
+  xlab("Sex of the household head")+
+  guides(fill=F)
+  
+p4<-ggplot(data=expend.df,aes(y=expenditure,x=lab.force,fill=lab.force))+
+  geom_boxplot()+
+  xlab("Employment status")+
+  guides(fill=F)
+
+p5<-ggplot(data=expend.df,aes(y=expenditure,x=hh.size,fill=hh.size))+
+  geom_boxplot()+
+  xlab("Household size")+
+  guides(fill=F)
+
+p6<-ggplot(data=expend.df,aes(y=expenditure,x=hh.adults,fill=hh.adults))+
+  geom_boxplot()+
+  xlab("Number of adults in the household")+
+  guides(fill=F)
+
+grid.arrange(p1,p2,p3,p4,p5,p6,ncol=2,nrow=3)
+```
+
+Looking at the above histogram of expenditure it shows that expenditure has a positively skewed distribution. Noticing this after applying a log transform the histogram of log expenditure has a more normal looking distribution.
+
+Investigating covarits against expenditure we can see that there is a positive association between household income and expenditure.
+Looking at the various factor variables using box plots...
+
+```{r,echo=F,eval=F}
+pairs(expend.df)
+xtabs(~expend.df$house.ten+expend.df$sex.hh)
+```
+
+```{r,,echo=F,eval=F}
+par(mfrow=c(1,2))
 hist(expend.df$expenditure,breaks = 20,
      xlab = "Total weekly household expenditure (GBP)")
-
-ggplot(data=expend.df,aes(x=income,y=expenditure))+
-  geom_point()
+hist(log(expend.df$expenditure),breaks = 20,
+     xlab = " Log of total weekly \n household expenditure (GBP)")
+#Applying log transform gives a more normal looking distribution
 ```
-Looking at the above histogram it appears to have a skewed distribution
 
 
 
+#### Part 2:
+
+```{r,echo=F}
+#Question 2
+lm.income<-lm(expenditure~income,data = expend.df)
+#summary(lm.income)
+as.data.frame(tidy(lm.income)[,1:3])%>%
+  kable(escape = F)%>%
+  kable_styling(font_size = 15)
+par(mfrow=c(2,2))
+plot(lm.income)
+# #as expected the normal QQ plot shows 'bad fit'
+
+# #try gamma as good for postively skewed continous data
+# gamma.income <-glm(expenditure~income,data=expend.df,family="Gamma")
+# summary(gamma.income)
+# plot(gamma.income)
+# #bad fit (explain)
+# 
+# #out of all models log linear is the most appropriate
+```
+Fitting a linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\epsilon$ with the response $y$ the expenditure,the explanatory variable $x$ the income and $i \in \{1,...,1200\}$. The above table shows the estimated values of the intercept ($\beta_0$) and the estimated 'effect' of a 1 pound increase in income on expenditure $\beta_1$ and there standard errors.
+
+Viewing the diagnostic plots for this model. The fitted vs residual plot shows the residuals are not equally spread around 0 with a greater spread of residuals above zero, meaning the assumption of linearity may not hold. Furthermore, the QQ normal plot has a u shape with the tails diverging heavily away from the straight line. This implies the normality assumption is invalid.
+
+#### Part 3:
+```{r,echo=F}
+#Question 3
+lm.income.sqd <- lm(expenditure~income+I(income^2),data = expend.df)
+tidy(lm.income.sqd)[,1:3]%>%
+  kable(escape = F)%>%
+  kable_styling(font_size = 15)
+par(mfrow=c(2,2))
+plot(lm.income.sqd)
+
+# lm.log.income.sqd <- lm(log(expenditure)~income+I(income^2),data = expend.df)
+# summary(lm.log.income.sqd)
+# plot(lm.log.income.sqd)
+# 
+# gamma.income.sqd <-glm(expenditure~income+I(income^2),data=expend.df,family="Gamma")
+# summary(gamma.income.sqd)
+# plot(gamma.income.sqd)
+```
+Fitting a new linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\beta_2x^2_{i}+\epsilon$ gives the above estimated coefficients. Looking at the diagnostic plots, in the fitted vs residual plot the residual values increase as the fitted values increase thus the homoscedasticity assumption may not be valid. The tails in the normal QQ plot also still deviate heavily away from the straight line meaning the normality assumption is invalid.
+
+#### Part 4:
+```{r,echo=F}
+#Question 4
+lm.log.income<-lm(log(expenditure)~income,data = expend.df)
+tidy(lm.log.income)[,1:3]%>%
+  kable(escape = F)%>%
+  kable_styling(font_size = 15)
+par(mfrow=c(2,2))
+plot(lm.log.income)
+# #QQ plot much better but not sure about the residual vs fitted if the variance decreases as fitted value increases
+```
+Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$. The data appears to be hetroscedastic as the fitted vs residual plot points spread decreases as fitted values increases/ not. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid.
+
+#### Part 5:
+```{r,echo=F}
+lm.log.income.sqd <- lm(log(expenditure)~income+I(income^2),data = expend.df)
+summary(lm.log.income.sqd)
+par(mfrow=c(2,2))
+plot(lm.log.income.sqd)
+```
+Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ 
 
 
