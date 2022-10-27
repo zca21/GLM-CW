@@ -1,0 +1,20 @@
+---
+title: "Untitled"
+output: html_document
+date: "2022-10-27"
+---
+```{r}
+#Inital enviroment setup
+setwd("~/Desktop/GLM/Coursework/GLM-CW")
+expend.df <- read.table("expenditure.txt")
+library(tidyverse)
+library(kableExtra)
+```
+
+```{r}
+
+```
+
+
+
+
