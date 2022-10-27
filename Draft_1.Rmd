@@ -12,8 +12,26 @@ library(kableExtra)
 ```
 
 ```{r}
+#Data cleaning
+
+#coding variables as factors
+expend.df$house.ten <- factor(expend.df$house.ten,levels=c(1:3),labels=c("Public Rented","Private rented","Owned"))
+expend.df$sex.hh <- factor(expend.df$sex.hh,levels=c(1,2),labels=c("Male","Female"))
+expend.df$lab.force <- factor(expend.df$lab.force,levels=c(1:4),labels=c("Full time", "Part time","Unemployed","Inactive"))
+expend.df$hh.size <- factor(expend.df$hh.size,levels=c(1:5),labels = c("1 person","2 people","3 people","4 people","5+ persons"))
+expend.df$hh.adults <- factor(expend.df$hh.adults,levels = c(1:4), labels = c("1 adult","2 adults","3 adults","4+ adults"))
 
 ```
+
+```{r}
+hist(expend.df$expenditure,breaks = 20,
+     xlab = "Total weekly household expenditure (GBP)")
+
+ggplot(data=expend.df,aes(x=income,y=expenditure))+
+  geom_point()
+```
+Looking at the above histogram it appears to have a skewed distribution
+
 
 
 
