@@ -13,6 +13,7 @@ library(tidyverse)
 library(kableExtra)
 library(gridExtra)
 library(broom)
+library(MASS)
 ```
 
 ```{r,echo=F}
@@ -73,18 +74,28 @@ p6<-ggplot(data=expend.df,aes(y=expenditure,x=hh.adults,fill=hh.adults))+
 
 grid.arrange(p1,p2,p3,p4,p5,p6,ncol=2,nrow=3)
 ```
+```{r}
+p6
+```
+
+
 
 Looking at the above histogram of expenditure it shows that expenditure has a positively skewed distribution. Noticing this after applying a log transform the histogram of log expenditure has a more normal looking distribution.
 
-Investigating covarits against expenditure we can see that there is a positive association between household income and expenditure.
-Looking at the various factor variables using box plots...
+Investigating covariates against expenditure we can see that there is a positive association between household income and expenditure.
+For the factor variables I use box plots to examine any differences present between the different levels expenditure.
+Household tenure displays differences that public rented households have noticeably lower expenditure compared to the other 2 household levels
+Female household leads expend less on average
+Employment status appears to be associated with expenditure with unemployed having a dramicatlly lower expenditure compared to full and part time employment categories
+Household size appears to be positively correlated with expenditure, with larger households having higher expenditure except for 5+ person households which goes against this trend (further investigation?)
+Number of adults in the household also appears positively correlated with households containing more adults having a higher expenditure
+
 
 ```{r,echo=F,eval=F}
+#extra code that may not use
 pairs(expend.df)
 xtabs(~expend.df$house.ten+expend.df$sex.hh)
-```
 
-```{r,,echo=F,eval=F}
 par(mfrow=c(1,2))
 hist(expend.df$expenditure,breaks = 20,
      xlab = "Total weekly household expenditure (GBP)")
@@ -92,6 +103,7 @@ hist(log(expend.df$expenditure),breaks = 20,
      xlab = " Log of total weekly \n household expenditure (GBP)")
 #Applying log transform gives a more normal looking distribution
 ```
+
 
 
 
@@ -151,15 +163,193 @@ par(mfrow=c(2,2))
 plot(lm.log.income)
 # #QQ plot much better but not sure about the residual vs fitted if the variance decreases as fitted value increases
 ```
-Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$. The data appears to be hetroscedastic as the fitted vs residual plot points spread decreases as fitted values increases/ not. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid.
+Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$. The data appears to be hetroscedastic as the fitted vs residual plot points spread decreases as fitted values increases/ not. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid. 
 
 #### Part 5:
 ```{r,echo=F}
 lm.log.income.sqd <- lm(log(expenditure)~income+I(income^2),data = expend.df)
-summary(lm.log.income.sqd)
+tidy(lm.log.income.sqd)[,1:3]%>%
+  kable(escape = F)%>%
+  kable_styling(font_size = 15)
 par(mfrow=c(2,2))
 plot(lm.log.income.sqd)
 ```
-Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ 
+Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ gives the estimated coefficients above. Viewing the diagnostic plots the fitted vs residuals plot shows a fairly even scattering of points around 0 thus the linearity assumption appears valid. The QQ plot shows the points stay close to the straight line meaning the normality assumption is valid.
+
+#### Task 6
+```{r}
+#Comparing AIC
+AIC(lm.income)
+AIC(lm.income.sqd)
+AIC(lm.log.income)
+AIC(lm.log.income.sqd)
+#Comparing R squared
+glance(lm.income)$r.squared
+glance(lm.income.sqd)$r.squared
+glance(lm.log.income)$r.squared
+glance(lm.log.income.sqd)$r.squared
+#Comparing adjusted R squared
+glance(lm.income)$adj.r.squared
+glance(lm.income.sqd)$adj.r.squared
+glance(lm.log.income)$adj.r.squared
+glance(lm.log.income.sqd)$adj.r.squared
+```
+
+Using AIC as a measure of fit the best is model 3. However model 4 has the highest $R^2$ and adjusted $R^2$ suggestiong that model 4 is the best fit to the data. Which is further backed up by the diagnostic plots giving the indication that this is the only model in which the linearity and normality assumptions are met. Due to the diagnostic plots and $R^2$ values I choose model 4 as my preferred model.
+
+
+```{r}
+tidy(lm.log.income)
+tidy(lm.log.income.sqd)
+```
+
+Using this model a person who has no income is expected to spend £4.71 per week (add in CI) and a £100 increase in income per week will increase expenditure on average by $exp(3.12x-0.00145x^2)$
+
+MODEL IS LOG SO NEED TO EXP IT!!!!
+
+
+#### Task 7
+```{r}
+#Investigating possible interactions
+ggplot(data=expend.df,aes(x=sex.hh,fill=hh.adults,y=expenditure))+geom_boxplot()
+```
+
+
+```{r}
+#Creating model with all possible 2 way interactions (not a good idea but just for interest :P)
+lm.log.full<-lm(log(expenditure)~income+I(income^2)+income*sex.hh+income*hh.adults+income*house.ten+income*lab.force+income*hh.size+sex.hh*hh.adults+sex.hh*house.ten+sex.hh*lab.force+sex.hh*hh.size+hh.adults*house.ten+hh.adults*lab.force+hh.adults*hh.size+house.ten*lab.force+house.ten*hh.size+lab.force*hh.size,data=expend.df)
+summary(lm.log.full)
+
+step.method<- step(lm.log.full,trace=F)
+summary(step.method)
+
+```
+
+
+
+```{r}
+#Using AIC as the model fitting criteria (step function)
+#Note that we are allowed to use interactions!
+lm.log.full<-lm(log(expenditure)~income+I(income^2)+income*sex.hh+income*hh.adults+income*house.ten+lab.force+hh.size,data=expend.df)
+summary(lm.log.full)
+step.method<- step(lm.log.full,trace=F)
+summary(step.method)
+AIC(step.method)
+plot(step.method)
+```
+
+I started by only considering 2 way interactions that could be plausible for example income may have a different effect on expenditure depending on sex of household head. Furthermore the number of adults or household tenure type may impact the effect of income on expenditure as.... above I investigated if there were differences when sub categorising the categories to see if there where plausible interactions between factor variables, however none showed any significant differences between the different cohorts (initial factors)
+
+#### Model selection
+For the model selection process I first wanted to decide which transformation is best to apply to the response as it is clearly skewed. using the box 
+
+For this model selection process. I first decided to only consider 2 way interactions as higher order interactions make interpretation of the model much more complicated.
+When considering which interactions to include I first created plots to examine if there are any clear interactions between income and the other covariates. Considering the factor covarites thinking about the possible interactions none made much logical sense e.g. a household female head would have a different effect on expenditure to male depending on the number of people in the household. Thus didn't include any factor:factor ionteractions in the model.
+
+```{r}
+#interaction between sex and income
+interaction.continous <-function(var){
+  ggplot(data=expend.df,aes(x=income,y=expenditure,colour=.data[[var]]))+
+    geom_point()
+}
+
+
+int1<-interaction.continous("house.ten")
+int2<-interaction.continous("sex.hh")
+int3<-interaction.continous("lab.force")
+int4<-interaction.continous("hh.size")
+int5<-interaction.continous("hh.adults")
+
+grid.arrange(int1,int2,int3,int4,int5,ncol=2,nrow=3)
+int1
+int2
+int3
+int4
+int5
+```
+Looking at the scatter plots each factor for the plots does appear to have a different gradient thus an interaction could be present. Therefore for the model selection process I will start with a full model with all covariates and the pairwise interactions between income and each of the factor variables. Then using AIC I remove the coefficient that gives the biggest increase in AIC until no increase in AIC can be attained. Using this step method I will come to my first potential final model. 
+
+```{r}
+lm.log.full<-lm(log(expenditure)~income+I(income^2)+income*sex.hh+income*hh.adults+income*house.ten+lab.force*income+hh.size*income,data=expend.df)
+summary(lm.log.full)
+step.method<- step(lm.log.full,trace=F)
+summary(step.method)
+AIC(step.method)
+plot(step.method)
+
+par(mfrow=c(1,2))
+hist(sqrt(expend.df$expenditure),breaks = 20)
+hist(log(expend.df$expenditure),breaks = 20)
+
+lm.sqrt<-lm(sqrt(expenditure)~income+I(income^2),data = expend.df)
+plot(lm.sqrt)
+```
+
+
+```{r}
+lm.log.full.no.int<-lm(log(expenditure)~income+I(income^2)+sex.hh+hh.adults+house.ten+lab.force+hh.size,data=expend.df)
+summary(lm.log.full.no.int)
+step.method<- step(lm.log.full.no.int,trace=F)
+
+plot(lm.log.full.no.int)
+```
+
+Using AIC as the selection critera the best model without interactions is the full model.
+
+Now I try adding interactions that couold make logical sense.
+
+As a sex of the household head could impact the effect of income on expenditure (perhaps males are more likely to spend then save then females as they get more money or the reverse)
+
+The number of adults my affect the affect of income as more adults from a higher income household may be more likely to spend more 
+
+The type of household tenure may affect the
+
+```{r}
+#adding these into the model 1 by 1
+new.lm.add.sex<-update(lm.log.full.no.int, .~.+income*sex.hh)
+anova(lm.log.full.no.int,new.lm.add.sex)
+summary(new.lm.add.sex)
+
+AIC(lm.log.full.no.int)
+AIC(new.lm.add.sex)
+
+glance(lm.log.full.no.int)$adj.r.squared
+glance(new.lm.add.sex)$adj.r.squared
+#Not really much difference and note that interaction is not significant
+
+new.lm.add.adults<-update(lm.log.full.no.int, .~.+income*hh.adults)
+anova(lm.log.full.no.int,new.lm.add.adults)
+summary(new.lm.add.adults)
+
+AIC(lm.log.full.no.int)
+AIC(new.lm.add.adults)
+
+glance(lm.log.full.no.int)$adj.r.squared
+glance(new.lm.add.adults)$adj.r.squared
+
+
+new.lm.add.ten<-update(lm.log.full.no.int, .~.+income*house.ten)
+anova(lm.log.full.no.int,new.lm.add.ten)
+summary(new.lm.add.ten)
+
+AIC(lm.log.full.no.int)
+AIC(new.lm.add.ten)
+
+glance(lm.log.full.no.int)$adj.r.squared
+glance(new.lm.add.ten)$adj.r.squared
+
+
+AIC(lm.log.full)
+AIC(lm.log.full.no.int)
+glance(lm.log.full.no.int)$adj.r.squared
+glance(lm.log.full)$adj.r.squared
+```
+
+```{r}
+# Attempting Box-Cox transformation to check whether distribution is better
+estim_BoxCox <- boxcox(expenditure ~ income+sex.hh+hh.adults+house.ten+lab.force+hh.size+income:hh.adults+income:house.ten+income:lab.force,data =expend.df)
+# Find optimal lambda
+lambda <- estim_BoxCox$x[ which.max( estim_BoxCox$y ) ]
+```
 
 
