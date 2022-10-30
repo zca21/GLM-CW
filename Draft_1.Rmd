@@ -79,18 +79,21 @@ grid.arrange(p1,p2,p3,p4,p5,p6,ncol=2,nrow=3)
 
 
 Looking at the above histogram of expenditure above it shows that expenditure has a positively skewed distribution.
+Investigating the relationship between household income and expenditure in the scatter plot above, it displays a clear positive association.
+Then to investigate the other variables which are categorical I used boxplots to display differences in the expenditure across the different levels(categories). The differences shown in the plots are listed below:
 
-I investigated the relationships between the other variable and expenditure dataset using the plots above.
-We can see that there is a positive association between household income and expenditure in the scatter plot.
-For the factor variables I used box plots to examine any differences present between the different levels within the factor variable and expenditure:
-Different household tenure categories have different expenditure amounts with public rented households having a noticeably lower expenditure compared to the other 2 household levels
-Households with a female head appear to have a lower expenditure than that of male household heads
-Employment status appears to be associated with expenditure with unemployed having a dramatically lower expenditure compared to full and part time employment categories.
-Household size appears to be positively correlated with expenditure, with larger households having higher expenditure except for 5+ person households which goes against this trend (further investigation?)
-Number of adults in the household also appears positively correlated with households containing more adults having a higher expenditure.
+ 
+-Different household tenures categories have different weekly expenditure amounts with public rented households having a noticeably lower expenditure compared to the other 2 household levels.
+-Households with a female head have a lower weekly expenditure compared to male household heads
+-Employment status appears to be associated with expenditure with unemployed households having a dramatically lower expenditure compared to households with full or part time employment.
+-Household size generally appears to be positively correlated with expenditure, with larger households having a higher weekly expenditure (however 5+ households break this trend with the expenditure decreasing, this could be due to other variables).
+Number of adults in the household also appears positively correlated with expenditure with households containing more adults having a higher expenditure.
+
+I note that these differences may not be due to the variable mentioned but due to a third variable (a confounder) that affects both the categorical variable and expenditure (the response) which could be other variables in the dataset or ones that were not even included.
 
 
 #### Part 2:
+In all linear models mentioned for part 2 to 6, the response $y$ is the weekly household expenditure and the explanatory variable $x$ is weekly income and $i \in \{1,...,1200\}$ is the ith household in the dataset.
 
 ```{r,echo=F}
 #Question 2
@@ -102,7 +105,7 @@ as.data.frame(tidy(lm.income)[,1:3])%>%
 par(mfrow=c(2,2))
 plot(lm.income)
 ```
-Fitting a linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\epsilon$ with the response $y$ the expenditure,the explanatory variable $x$ income and $i \in \{1,...,1200\}$ the ith household. The above table shows the estimated values of the intercept ($\beta_0$) and the estimated 'effect' of a 1 pound increase in income on expenditure $\beta_1$ and there standard errors.
+The estimated coefficients for the fitted linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\epsilon$  are displayed in the above table. It shows the estimated values of the intercept ($\beta_0$) and the estimated 'effect' of a 1 pound increase in income on expenditure $\beta_1$ and the associated standard errors.
 
 Viewing the diagnostic plots for this model. The fitted vs residual plot shows the residuals are not equally spread around 0 with a greater spread of residuals above zero, meaning the assumption of linearity may not hold. Furthermore, the QQ normal plot has a u shape with the tails diverging heavily away from the straight line. This implies the normality assumption is invalid.
 
@@ -124,7 +127,7 @@ plot(lm.income.sqd)
 # summary(gamma.income.sqd)
 # plot(gamma.income.sqd)
 ```
-Fitting a new linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\beta_2x^2_{i}+\epsilon$ gives the above estimated coefficients. Looking at the diagnostic plots, in the fitted vs residual plot the residual values increase as the fitted values increase thus the homoscedasticity assumption may not be valid. The tails in the normal QQ plot also still deviate heavily away from the straight line meaning the normality assumption is invalid.
+Fitting a new linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\beta_2x^2_{i}+\epsilon$ with an added squared term of income gives the above estimated coefficients. Looking at the diagnostic plots, in the fitted vs residual plot the residual values increase as the fitted values increase thus the homoscedasticity assumption may not be valid. The tails in the normal QQ plot also still deviate heavily away from the straight line meaning the normality assumption is invalid.
 
 #### Part 4:
 ```{r,echo=F}
@@ -137,7 +140,7 @@ par(mfrow=c(2,2))
 plot(lm.log.income)
 # #QQ plot much better but not sure about the residual vs fitted if the variance decreases as fitted value increases
 ```
-Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$. The data appears to be hetroscedastic as the fitted vs residual plot points spread decreases as fitted values increases/ not. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid. 
+Fitting the same model as in task 2 but with the response of expenditure logged $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$ gives the above coefficients. The data appears to be heteroscedastic as the fitted vs residual plot points spread decreases as fitted values increases, furthermore the linear assumption also appears violated as the residuals appear to exhibit a slight negative quadratic shape. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid. 
 
 #### Part 5:
 ```{r,echo=F}
@@ -148,8 +151,7 @@ tidy(lm.log.income.sqd)[,1:3]%>%
 par(mfrow=c(2,2))
 plot(lm.log.income.sqd)
 ```
-Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ gives the estimated coefficients above. Viewing the diagnostic plots the fitted vs residuals plot shows a fairly even scattering of points around 0 thus the linearity assumption appears valid. The QQ plot shows the points stay close to the straight line meaning the normality assumption is valid.
-(scale location is slightly dogy- sign constant variance assumption has been violated)
+Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ gives the estimated coefficients above. Viewing the diagnostic plots the fitted vs residuals plot shows a fairly even scattering of points around 0 and a linear trend, however the residuals are bunched to the very right of the plot and the variance of the residuals appears to decrease as the fitted values increase, this could be to important variables being left out of the model (MAY NEED TO CHANGE THIS). The non-constant variance assumption being violated is further backed up by the none straight line in the scale location plot. The QQ plot shows the points stay close to the straight line meaning the normality assumption is valid.
 
 #### Task 6
 ```{r}
@@ -170,7 +172,7 @@ glance(lm.log.income)$adj.r.squared
 glance(lm.log.income.sqd)$adj.r.squared
 ```
 
-Using AIC as a measure of fit the best is model 4 as it has the lowest AIC value. Furthermore, model 4 has the highest $R^2$ and adjusted $R^2$ suggestion that model 4 'fits' the data best. This is further backed up by the diagnostic plots which indicate that this is the only model in which the linearity and normality assumptions are met. Due to all these reasons model 4 as my preferred model.
+The 4th model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ has the lowest AIC value of *1528.062* and the highest adjusted R squared value of *0.4635055*. Furthermore, looking at the diagnostic plots the normality assumption is valid and the fitted vs residual plot although not 'perfect' displays a more even scattering of points than that of the same plot for the other models. Therefore for all these reasons the 4th model is my preferred model to describe the relationship between expenditure and income.
 
 
 ```{r}
@@ -178,17 +180,19 @@ tidy(lm.log.income.sqd)
 
 mean(expend.df$income)
 ```
-Using the model a 1 unit increase in household income increase the expenditure by $exp(\beta_1+2x\beta_2+\beta_2)-1$x100% of the old value. Subbing in the values of $\beta_1$ and $\beta_2$ this gives an increase by $exp(0.0032-0.0000029x-0.0000015)-1$x100%. Therefore for a household earning the mean income of £512 a £1 increase in income increases expenditure by approximately 0.17%. Using a more likely realistic increase in weekly income of £20 for a household earning £512 gives an increase of $exp(0.016-0.000015*20-0.000036)-1$x100% = 1.6%.
-
-Include CI?
-
+Income has a positive association with expenditure with a 1 pound increase in household income increasing household expenditure by $exp(0.0032-0.0000029x-0.0000015)-1$x100%. Therefore for a household earning the mean income of £512 a £1 increase in income increases expenditure by approximately 0.17%. Using a more likely realistic increase in weekly income of £20 for a household earning £512 gives an increase of $exp(0.016-0.000015*20-0.000036)-1$x100% = 1.6%.
 #### Task 7
-
-I started by only considering 2 way interactions that could be plausible for example income may have a different effect on expenditure depending on sex of household head. Furthermore the number of adults or household tenure type may impact the effect of income on expenditure as.... above I investigated if there were differences when sub categorising the categories to see if there where plausible interactions between factor variables, however none showed any significant differences between the different cohorts (initial factors)
+For interactions I decided to only consider 2 way interactions that could be plausible for example income may have a different effect on expenditure depending on sex of household head. Furthermore the number of adults or household tenure type may impact the effect of income on expenditure as.... above I investigated if there were differences when sub categorising the categories to see if there where plausible interactions between factor variables, however none showed any significant differences between the different cohorts (initial factors)
 
 #### Model selection
 For this model selection process I decided to only consider 2 way interactions as higher order interactions make interpretation of the model much more complicated.
-When considering which interactions to include I first created plots to examine if there are any clear interactions between income and the other covariates. Considering the factor covarites thinking about the possible interactions none made much logical sense e.g. a household female head would have a different effect on expenditure to a male head depending on the number of people in the household. Thus didn't include any factor:factor interactions in the model.
+Furthermore, when considering which interactions to include I first created plots to examine if there are any clear interactions between income and the other covariates. Considering plausible interactions between 2 factor covarites an interaction between household size and number of adults made sense?
+and labour force with either household size or number of adults in the household.
+
+household size and number of adults (number of adults may change effect of household size)
+lab.force and hh.size or hh.adult as families who are unemployed may have different spending habits be more frugal then a singluar household that is unemployed 
+ INVESTIGATE HOW SIMILAR EACH VARIABLE IS!
+none made much logical sense e.g. a household female head would have a different effect on expenditure to a male head depending on the number of people in the household. Thus didn't include any factor:factor interactions in the model.
 
 ```{r}
 #interaction between sex and income
@@ -219,9 +223,26 @@ step.method<- step(lm.log.full,trace=F)
 tidy(step.method)
 AIC(step.method)
 glance(step.method)$adj.r.squared
-plot(step.method)
+
 #got rid of 2 interactions: income:sex and income:hhsize
+AIC(lm.log.income.sqd)
+AIC(step.method)
+glance(lm.log.income.sqd)$adj.r.squared
+glance(step.method)$adj.r.squared
+
+summary(step.method)
+
+anova(step.method)
 ```
+
+Using AIC as the model selection criteria I removed 2 interactions income:sex and income:household size. Comparing this new model to the original the AIC is significantly lower and the adjusted R squarded is significantly higher. Also note that each variable is significant except for 
+
+
+```{r}
+plot(step.method)
+```
+
+
 
 
 ```{r}
