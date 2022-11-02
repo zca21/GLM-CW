@@ -1,0 +1,89 @@
+---
+title: "Untitled"
+output: html_document
+date: "2022-11-02"
+---
+
+```{r}
+#setting up variables
+n=1000
+x=rnorm(n,0,1)
+p=exp(0.1+0.5*x)/(1+exp(0.1+0.5*x))
+y=rbinom(n,1,p)
+con=rep(1,n)
+X=matrix(c(con,x),nrow=n,ncol=2)
+
+# #Fiddling around to work out the matrix algebra
+# T <- matrix(c(1,2,3,4),ncol=2,nrow=2,byrow=T)
+# beta <- matrix(c(1,1),ncol=1,nrow=2)
+# beta
+# diag(as.vector(exp(T%*%beta)/(1+exp(T%*%beta))^2),2)
+#   
+# vec <- c(1,0)-as.vector(exp(T%*%beta)/(1+exp(T%*%beta)))
+# t(vec%*%T)
+```
+
+```{r}
+# First make with iteration to be specified to check function is working
+MLE.iter <- function(y,X,iter){
+  
+  beta.previous <- matrix(c(1,1),nrow=2,ncol=1)
+  
+  for (i in 1:iter){
+    beta <- beta.previous
+    W <- diag(as.vector(exp(X%*%beta)/(1+exp(X%*%beta))^2),dim(X)[1])
+    Y <- y-as.vector(exp(X%*%beta)/(1+exp(X%*%beta)))
+    
+    beta.previous<- beta+solve(t(X)%*%W%*%X)%*%t(Y%*%X)
+  }
+  return(beta.previous)
+}
+
+
+#Using convergence this time to stop iterations (or if reaches max iterations)
+MLE.conv <- function(y,X){
+  #Setting initial guess of beta
+  beta.new <- matrix(c(1,1),nrow=2,ncol=1)
+  #Setting objects for conditions of when stop iterations (while loop)
+  flag <- 1
+  eps <- 0.00001
+  c <- 0
+  max.iter <- 100
+  
+  while (flag==1){
+    #Setting beta to use to find new value of beta
+    beta <- beta.new
+    
+    #Finding W, where I have defined W as t(X)WX = Fisher information matrix
+    W <- diag(as.vector(exp(X%*%beta)/(1+exp(X%*%beta))^2),dim(X)[1])
+    #Finding Y where t(YX) is defined as the score 
+    Y <- y-as.vector(exp(X%*%beta)/(1+exp(X%*%beta)))
+    
+    #Applying Fisher scoring
+    beta.new<- beta+solve(t(X)%*%W%*%X)%*%t(Y%*%X)
+    
+    #Checking for convergence
+    if (abs(sum(beta.new)-sum(beta))<eps){
+      flag <- 0
+    }
+    c <- c+1
+  }
+  
+  var.cov.mat <- solve(t(X)%*%W%*%X)
+    
+  return(list("estimates"=beta.new,"vcov"=var.cov.mat))
+}
+
+MLE.output <- MLE.conv(y,X)
+MLE.output$estimates
+
+#Testing against glm function
+glm.model <- glm(y~x,family = "binomial")
+summary(glm.model)
+
+#Checking variance-covariance matrix against that found in glm function
+vcov(glm.model)
+MLE.conv(y,X)$vcov
+```
+
+
