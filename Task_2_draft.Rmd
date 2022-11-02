@@ -1,0 +1,61 @@
+---
+title: "Untitled"
+output: html_document
+date: "2022-11-02"
+---
+```{r}
+#Setting up enviroment
+setwd("~/Desktop/GLM/Coursework/GLM-CW")
+airline.df <- read.table("airline.txt",header=T)
+
+#Setting up inputs of mle function
+n <- dim(airline.df)[[1]]
+con <- rep(1,n)
+X=matrix(c(con,airline.df$x),nrow=n,ncol=2)
+y <- airline.df$y
+```
+
+```{r}
+#Creating function for algorithm
+Fisher.scoring.alg <- function(X,y){
+  #Setting initial guess of beta coefficients
+  beta.new <- matrix(c(1,1),nrow=2,ncol=1)
+  #Setting objects for conditions of when stop iterations (while loop)
+  flag <- 1
+  eps <- 0.00001
+  c <- 0
+  max.iter <- 100000000
+  
+  while (flag==1){
+    #Updating current value of beta to use for current iteration to find next beta value
+    beta <- beta.new
+    
+    #Updating Y where YX is the score function
+    Y <- as.vector((y*exp(-(X%*%beta)))-1)
+    
+    #Applying Fisher Scoring algorithm to find updated value of beta 
+    beta.new <- beta + solve(t(X)%*%X)%*%t(Y%*%X)
+
+    #Checking for convergence
+    if (abs(sum(beta.new)-sum(beta))<eps){
+      flag <- 0
+    }
+    c <- c+1
+  }
+  #Variance covariance matrix
+  var.cov.mat <- solve(t(X)%*%X)
+    
+  return("estimates"=beta.new)
+}
+
+Fisher.scoring.alg(X,y)
+```
+
+```{r}
+#Check with glm model
+fit <- glm(y~X[,2], family  = Gamma(link="log"))
+summary(fit,dispersion=1)  
+```
+
+
+
