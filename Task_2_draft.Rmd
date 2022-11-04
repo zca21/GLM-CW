@@ -19,12 +19,16 @@ y <- airline.df$y
 #Creating function for algorithm
 Fisher.scoring.alg <- function(X,y){
   #Setting initial guess of beta coefficients
-  beta.new <- matrix(c(1,1),nrow=2,ncol=1)
+  
+  beta.new <- matrix(c(0,1),nrow=2,ncol=1)
   #Setting objects for conditions of when stop iterations (while loop)
   flag <- 1
-  eps <- 0.00001
+  #setting size of absolute difference between beta iterations when convergence is reached
+  eps <- 0.0000001
+  #Setting loop counter
   c <- 0
-  max.iter <- 100000000
+  #Max iterations before 
+  max.iter <- 1000000
   
   while (flag==1){
     #Updating current value of beta to use for current iteration to find next beta value
@@ -40,12 +44,16 @@ Fisher.scoring.alg <- function(X,y){
     if (abs(sum(beta.new)-sum(beta))<eps){
       flag <- 0
     }
+    
+    if (c>max.iter){
+      stop("Max number of iterations reached: Non-convergence of beta")
+    }
     c <- c+1
   }
   #Variance covariance matrix
   var.cov.mat <- solve(t(X)%*%X)
     
-  return("estimates"=beta.new)
+  return(beta.new)
 }
 
 Fisher.scoring.alg(X,y)
@@ -56,6 +64,13 @@ Fisher.scoring.alg(X,y)
 fit <- glm(y~X[,2], family  = Gamma(link="log"))
 summary(fit,dispersion=1)  
 ```
+
+```{r}
+#Finding var-cov matrix
+
+t(X)%*%(X)
+```
+
 
 
 
