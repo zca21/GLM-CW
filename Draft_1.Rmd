@@ -140,7 +140,7 @@ par(mfrow=c(2,2))
 plot(lm.log.income)
 # #QQ plot much better but not sure about the residual vs fitted if the variance decreases as fitted value increases
 ```
-Fitting the same model as in task 2 but with the response of expenditure logged $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$ gives the above coefficients. The data appears to be heteroscedastic as the fitted vs residual plot points spread decreases as fitted values increases, furthermore the linear assumption also appears violated as the residuals appear to exhibit a slight negative quadratic shape. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid. 
+Fitting the same model as in task 2 but with the response of expenditure logged $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$ gives the above coefficients. The data appears to be heteroscedastic as in the fitted vs residual plot the variance in the residuals decreases as the fitted values increases, furthermore the linear assumption also appears violated as the residuals appear to exhibit a slight negative quadratic shape. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid. 
 
 #### Part 5:
 ```{r,echo=F}
@@ -148,6 +148,7 @@ lm.log.income.sqd <- lm(log(expenditure)~income+I(income^2),data = expend.df)
 tidy(lm.log.income.sqd)[,1:3]%>%
   kable(escape = F)%>%
   kable_styling(font_size = 15)
+
 par(mfrow=c(2,2))
 plot(lm.log.income.sqd)
 ```
@@ -162,12 +163,6 @@ AIC(lm.income.sqd)
 AIC(lm.log.income)
 AIC(lm.log.income.sqd)
 
-# #Comparing R squared
-# glance(lm.income)$r.squared
-# glance(lm.income.sqd)$r.squared
-# glance(lm.log.income)$r.squared
-# glance(lm.log.income.sqd)$r.squared
-
 #Comparing adjusted R squared
 paste("adj R squared")
 glance(lm.income)$adj.r.squared
@@ -176,7 +171,7 @@ glance(lm.log.income)$adj.r.squared
 glance(lm.log.income.sqd)$adj.r.squared
 ```
 
-The 4th model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ has the lowest AIC value of *1528.062* and the highest adjusted R squared value of *0.4635055*. Furthermore, looking at the diagnostic plots the normality assumption is valid and the fitted vs residual plot although not 'perfect' displays a more even scattering of points than that of the same plot for the other models. Therefore for all these reasons the 4th model is my preferred model to describe the relationship between expenditure and income.
+The 4th model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ has the lowest AIC value of *1528.062* and the highest adjusted R squared value of *0.4635055*. Furthermore, looking at the diagnostic plots the normality assumption is valid and the fitted vs residual plot displays even scattering of points around 0. Therefore the 4th model is my preferred model to describe the relationship between expenditure and income.
 
 
 ```{r}
@@ -185,6 +180,8 @@ tidy(lm.log.income.sqd)
 mean(expend.df$income)
 ```
 Income has a positive association with expenditure with a 1 pound increase in household income increasing household expenditure by $exp(0.0032-0.0000029x-0.0000015)-1$x100%. Therefore for a household earning the mean income of £512 a £1 increase in income increases expenditure by approximately 0.17%. Using a more likely realistic increase in weekly income of £20 for a household earning £512 gives an increase of $exp(0.016-0.000015*20-0.000036)-1$x100% = 1.6%.
+
+
 #### Task 7
 To start I investigated the multicolinearity of the variables to make sure that certain variables were not linearly dependent as this would cause issues with the model if linearly dependent variables were included.
 
@@ -334,7 +331,7 @@ Adding each to the basic model separately only sex:household size and labour:ten
 To choose my final model I will start with a full model that includes all possible variables that I want to consider. Then using AIC and adjusted R^2 I will remove the coefficients. (lower AIC or higher adjusted R^2). Once I am happy with the model I end up with I will check the diagnostic plots to make sure the model fit is good/ assumptions met. 
 
 ```{r}
-lm.log.full<-lm(log(expenditure)~income*lab.force+I(income^2)+income*house.ten+income*hh.size+sex.hh:hh.size+lab.force:house.ten,data=expend.df)
+lm.log.full<-lm(log(expenditure)~income*lab.force+I(income^2)+income*house.ten+income*hh.size+sex.hh*hh.size+lab.force:house.ten,data=expend.df)
 step.method<- step(lm.log.full,trace=F)
 tidy(step.method)
 #labour force and household tenure interaction removed
@@ -357,9 +354,20 @@ Creating diagnostic plots
 ```{r}
 par(mfrow=c(2,2))
 plot(step.method)
-```
-All look good... EXPLAIN
 
+test.final <- update(step.method,.~.-income:lab.force-income:hh.size-income:lab.force)
+
+AIC(step.method)
+AIC(test.final)
+
+summary(test.final)
+par(mfrow=c(2,2))
+plot(test.final)
+
+par(mfrow=c(2,2))
+plot(step.method)
+```
+Diagnostic plots show no issues with the model fit. The residuals display a random scattering of points indicating the linearity assumption has been met and the residuals variance does not appear to increase/decrease expect for a few values but I don't think this is enough evidence to say that the homoscedasticity assumption is invalid. The points follow a straight line in the QQ plot with the tails deviating slightly but not extreme enough to indicate the normality assumption is invalid. The cooks distance plot shows no influential points are present in the data. (SHOULD I SAY SOMTHING ABOUT THE SCALE-LOCATION PLOT??)
 
 
 ```{r}
@@ -378,5 +386,29 @@ All look good... EXPLAIN
 
 ## Task 8
 
+The final model is $log(y_{ijkwz})=\beta_{0}+\beta_{1}x_{ijkwz}+\beta_{2}x_{ijkwz}^{2}+\alpha_{j}^{G}+\alpha_k^{S}+\alpha_{w}^{T}+\alpha_{z}^{L}+\beta^{L}x_{ijkwz}+\beta^{S}x_{ijkwz}+\beta^{T}x_{ijkwz}+\alpha^{SG}_{jk}+\epsilon_{ijkwz}$.
+
+```{r}
+data.frame("coefficent"=tidy(step.method)[,1],exp(tidy(step.method)[,2]))
+
+summary(step.method)
+```
+Due to the model being a log-linear model the explanatory variables have a multiplicative effect on the response. Exponentiating the estimated coefficients to find their effect on expenditure, first I note that the income interactions although statistically significant are not meaningful in reality as there effect on expenditure is negligible. All their coefficients have a value of approximately 1 thus have no effect on expenditure. Therefore, I ignore these interaction terms when making inference of the model as they won't change the results by any meaningful amount and it allows the effects of the exploratory variables to be generalised instead of having to consider its effect with each possible value of the variable sit has interactions with.
+
+
+
+I consider the explantory variables in approximate importance (affects expenditure the most). 
+
+
+income (with everything else constant) - interactions with  size, labour and tenure (all are insignificant) and squared term
+gender - interaction with size
+tenure - interaction with income 
+size - interaction with gender and income
+labour - interaction with income
+
+Most important variables (can ignore the interactions with income as approximately 1). labour force (big decrease one nearly halves),size (large increase up to 80%), tenure (large increase one is 50%), sex (increase 18%- but this is then taken out by interaction with larger households)
+
+
+Mention confounders, thus association not effect? As can't prove causailty
 
 
