@@ -179,23 +179,27 @@ tidy(lm.log.income.sqd)
 
 mean(expend.df$income)
 ```
-Income has a positive association with expenditure with a 1 pound increase in household income increasing household expenditure by $exp(0.0032-0.0000029x-0.0000015)-1$x100%. Therefore for a household earning the mean income of £512 a £1 increase in income increases expenditure by approximately 0.17%. Using a more likely realistic increase in weekly income of £20 for a household earning £512 gives an increase of $exp(0.016-0.000015*20-0.000036)-1$x100% = 1.6%.
+The log-linear model means that the covarites (income) have a multiplicative effect on the response (expenditure). The squared term of income included in the model means the change in the mean of expenditure now depends on the value of income. Income has a positive association with expenditure with an increase in income causing a percent increase in expenditure. With the initial value of income affecting the magnitude of the percent increase on expenditure. Smaller initial values of income cause greater percent increase on expenditure (due to the squared income term being negative).
+
+SAYS SUMMARISE SO MAY NOT INCLUDE THE INFOMATION BELOW
+
+In particular, a 1 pound increase in household income increases household expenditure by $exp(0.0032-0.0000029x-0.0000015)-1$x100%. Therefore for a household earning the mean income of £512, a £1 increase in income increases expenditure by approximately **0.17%**. Using a more realistic increase in weekly income of £20 for a household earning the mean income of £512 gives an increase of $exp(0.016-0.000015*20-0.000036)-1$x100% = **1.6%**.
 
 
 #### Task 7
-To start I investigated the multicolinearity of the variables to make sure that certain variables were not linearly dependent as this would cause issues with the model if linearly dependent variables were included.
+To start I investigated the multicolinearity.
 
 ```{r}
 #Checking variance inflation factors (generalized as variables include factors)
 car::vif(lm(log(expenditure)~income+I(income^2)+hh.size+hh.adults+sex.hh+lab.force+house.ten,data=expend.df))
 ```
-None of the variables had a GVIF greater than 5, thus multicolinearity is not an issue with the explanatory variables. Thus multicolinearity will not be an issue. However, considering the variables it seems likely that household size is related to number of household adults.
+None of the variables had a GVIF greater than 5, thus multicolinearity is not an issue with the explanatory variables. However, considering the variables it seems likely that household size is related to number of household adults.
 
 ```{r}
 #Creating tables for chi-squared test
 prop.table(table(expend.df$hh.size,expend.df$hh.adults),2)
 ```
-It is clear there is a relationship between the two. I now create linear models includiong each seperately and both together.
+It is clear there is a relationship between the two from the above proportional table. I then created linear models including each separately and both together.
 
 ```{r}
 lm.adult <- lm(log(expenditure)~income+I(income^2)+hh.adults,data = expend.df)
@@ -226,11 +230,11 @@ summary(lm.adult.size)
 
 #Based on AIC and R^2 (can use as all models have same number of variables) I select household size and tenure as the 2 variables to use in the model and won't use labour or household adults variables so will no longer consider these 2 variables.
 ```
-Looking at the summary outputs of all 3 variables the number of adults in the household is a significant predictor when on its own for predicting expenditure however when we add size of household it is no longer significant. Therefore the effect of number of adults can be explained by the size fo the household thus there is no point including it in the model. Thus, I will not consider the number of adults in the household as an explanatory variable for the model.
+Looking at the summary outputs the number of adults in a household is a significant predictor when on it is the only variable added to chosen model. However, when we add the size of a household variable aswell it is no longer significant. Likely the household size was is confounding the effect of number of adults. Thus, I will include the size of a household in for the final model but not the number of adults. 
 
 Considering the possible interactions, I decided to only include 2 way interactions as higher order interactions make interpretation of the model much more complicated and there is no clear 3 way interactions that make sense.
 
-First I investigated interactions between income and the factor variables. To do this I created scatter plots of income against expenditure with income split into each factor of the chosen explanatory factor variable with a plotted linear model for each of the level of the factor to see if the effect of income varied with each level of the factor variable on expenditure. This would be seen by a different gradient of the linear model.
+First I investigated interactions between income and the factor variables. To do this I created scatter plots of income against expenditure with income split into each factor of the chosen explanatory factor variable with a fitted linear model line plotted for each of the levels of the factor. Thus it will be possible to see if the effect of income varies within each level of the factor variable on expenditure. This would be seen by a different gradient of the fitted linear model lines.
 
 ```{r}
 #interaction between 3 factor variables and income investigation
@@ -252,21 +256,17 @@ int2
 int3
 int4
 ```
-Looking at the plots all show that factor variables have an affect on the effect of income on expenditure with different gradients between the levels, however the magnitude of the difference in these gradients varies. With sex the difference in gradient is very small indicating that sex has little affect on the effect of income on expenditure. Labour force on the hand has a large difference in gradients between its levels giving evidence of an interaction between labour force and income. I decided to not include a interaction between sex and income as there is little evidence to support this (and makes logical sense).
+Looking at the plots all show that each of the factor variables have an affect on the effect of income on expenditure with different gradients between the levels, however the magnitude of the difference in these gradients varies. For the variable of sex of the household head the difference in gradient is very small indicating that sex has little affect on the effect of income on expenditure. Labour force however has a large difference in gradients between its levels giving evidence of an interaction between labour force and income. I decided to not include a interaction between sex and income as there is little evidence to support this (and makes logical sense).
+
+To check if the remaining 3 interactions with income are significant I added each separately to the chosen model (aswell as the factor variable which is interacting with income).
 
 Looking at the plots. The largest differences in gradients between levels are in income:labour force, income:household adults and income: household size plots, thus these are the most likely to have interactions with income. Furthermore, it makes logical sense that these variables would affect to effect of income on expenditure. Meanwhile sex has little effect on income with the gradients although crossing remaining very similar and house tenure type having some differences. 
 
 ```{r}
-#Checking each of the interactions to see if significant with all variables included
-# lm.int.income.sex <- lm(log(expenditure)~income+I(income^2)+hh.size+sex.hh*income+lab.force+house.ten,data=expend.df)
-# summary(lm.int.income.sex)
-# #not significant as expected
-
 lm.int.income.size <- lm(log(expenditure)~income+I(income^2)+hh.size*income+sex.hh+lab.force+house.ten,data=expend.df)
 summary(lm.int.income.size)
 #significant
 
-#significant
 lm.int.income.labour <- lm(log(expenditure)~income+I(income^2)+hh.size+sex.hh+lab.force*income+house.ten,data=expend.df)
 summary(lm.int.income.labour)
 #significant
@@ -275,30 +275,9 @@ lm.int.income.tenure <- lm(log(expenditure)~income+I(income^2)+hh.size+sex.hh+la
 summary(lm.int.income.tenure)
 #significant
 ```
-Considering factor variable interactions. There are 6 possible factor interactions. 
+All 3 interactions were significant so I considered all 3 for my final model.
 
-```{r}
-# attach(expend.df)
-# prop.table(table(sex.hh,hh.size),1)
-# prop.table(table(sex.hh,hh.size),2)
-# #differences
-# 
-# prop.table(table(sex.hh,house.ten),1)
-# prop.table(table(sex.hh,house.ten),2)
-# 
-# prop.table(table(sex.hh,lab.force),1)
-# prop.table(table(sex.hh,lab.force),2)
-# #differences
-# 
-# prop.table(table(house.ten,hh.size),1)
-# prop.table(table(house.ten,hh.size),2)
-# 
-# prop.table(table(lab.force,hh.size),1)
-# prop.table(table(lab.force,hh.size),2)
-# 
-# prop.table(table(lab.force,house.ten),1)
-# prop.table(table(lab.force,house.ten),2)
-```
+Considering factor variable interactions. There are 6 possible factor interactions. 
 
 ```{r}
 lm.int.sex.size <- lm(log(expenditure)~income+I(income^2)+hh.size*sex.hh+lab.force+house.ten,data=expend.df)
@@ -325,75 +304,84 @@ lm.int.labour.tenure <- lm(log(expenditure)~income+I(income^2)+hh.size+sex.hh+la
 summary(lm.int.labour.tenure)
 #significant
 ```
-Adding each to the basic model separately only sex:household size and labour:tenure were significant therefore these are the only 2 I will consider for the final model.
+Adding each to the chosen model separately (plus the variables which were interacting) only sex:household size and labour:tenure were significant, therefore these are the only 2 I will consider for the final model.
 
 #### From full model
-To choose my final model I will start with a full model that includes all possible variables that I want to consider. Then using AIC and adjusted R^2 I will remove the coefficients. (lower AIC or higher adjusted R^2). Once I am happy with the model I end up with I will check the diagnostic plots to make sure the model fit is good/ assumptions met. 
+To choose my final model I will start with a 'full' model that includes all variables that I want to consider. Then using AIC and adjusted R^2 as my model selection criteria I will remove explanatory variables (those that cause the AIC to become lower or increase the adjusted R^2 when removed). After this as the model is for exploratory analysis and not prediction a simpler model that is easier to interpret/ understand is preferable (Occam's razor), therefore if the model can simplified to only include the important variables and this does not significantly affect the AIC and R^2 this further reduced model will be my final model.
 
 ```{r}
+#Full model of all variables I want to consider
 lm.log.full<-lm(log(expenditure)~income*lab.force+I(income^2)+income*house.ten+income*hh.size+sex.hh*hh.size+lab.force:house.ten,data=expend.df)
-step.method<- step(lm.log.full,trace=F)
-tidy(step.method)
-#labour force and household tenure interaction removed
-summary(step.method)
+
+AIC(lm.log.full)
+
+#Iteratively performing model selection process
+drop1(lm.log.full)
+#removing lab.force:house.ten will decrease AIC
+lm.full.1.deletion <- update(lm.log.full,.~.-lab.force:house.ten)
+AIC(lm.full.1.deletion)
+
+drop1(lm.full.1.deletion)
+#removing any variables increases AIC thus stop iterative process
 
 #comparing with original model
-AIC(lm.log.income.sqd)
-AIC(step.method)
-
 glance(lm.log.income.sqd)$adj.r.squared
-glance(step.method)$adj.r.squared
+glance(lm.full.1.deletion)$adj.r.squared
 
-anova(step.method)
-#All variables left statistically significant
+#AIC has been reduced and adjusted R^2 increased
+
+anova(lm.full.1.deletion)
+#All variables left statistically significant except income:house.ten
 ```
-Using AIC as the model selection criteria I removed 1 interactions labour force:house tenure type. Comparing this new model to the original the AIC is significantly lower and the adjusted R squared is significantly higher. All variables left in the model are also statistically significant.
 
+Using AIC as the model selection criteria I removed 1 interactions labour force:house tenure type. Comparing this new model to the original the AIC is significantly lower and the adjusted R squared is significantly higher. All variables left in the model are also statistically significant except for income:house tenure.
 
-Creating diagnostic plots
+I then checked how important (magnitude of impact on the response) the variables left in the model are. To find their impact on expenditure I exponentiated the estimated coefficients and note that due to log-linear model the effect is multiplicative.
 ```{r}
-par(mfrow=c(2,2))
-plot(step.method)
-
-test.final <- update(step.method,.~.-income:lab.force-income:hh.size-income:lab.force)
-
-AIC(step.method)
-AIC(test.final)
-
-summary(test.final)
-par(mfrow=c(2,2))
-plot(test.final)
-
-par(mfrow=c(2,2))
-plot(step.method)
+data.frame("coefficent"=tidy(step.method)[,1],exp(tidy(step.method)[,2]))
 ```
-Diagnostic plots show no issues with the model fit. The residuals display a random scattering of points indicating the linearity assumption has been met and the residuals variance does not appear to increase/decrease expect for a few values but I don't think this is enough evidence to say that the homoscedasticity assumption is invalid. The points follow a straight line in the QQ plot with the tails deviating slightly but not extreme enough to indicate the normality assumption is invalid. The cooks distance plot shows no influential points are present in the data. (SHOULD I SAY SOMTHING ABOUT THE SCALE-LOCATION PLOT??)
-
+I note that all income interactions are not meaningful/important as their exponentiated value is approximately 1. Thus, their effect on expenditure is negligible. Thus I remove them from the model as a simpler model is preferred.
 
 ```{r}
-# #Comparing to no interaction model
-# lm.log.full.no.int<-lm(log(expenditure)~income+I(income^2)+sex.hh+house.ten+lab.force+hh.size,data=expend.df)
-# summary(lm.log.full.no.int)
-# step.method<- step(lm.log.full.no.int,trace=F)
-# 
-# plot(lm.log.full.no.int)
-# AIC(lm.log.full.no.int)
-# #higher AIC
+#updating to simplier model
+lm.simple.model.1 <- update(lm.full.1.deletion, .~.-income:lab.force-income:hh.size-income:house.ten)
 
-# glance(lm.log.full.no.int)$adj.r.squared
-# #lower adjusted R^2
+summary(lm.simple.model.1)
+
+drop1(lm.simple.model.1)
+#lowest AIC when don't remove any variables
+
+#Therefore this is my final model
+lm.final.model <- lm.simple.model.1
 ```
+
+
+```{r}
+par(mfrow=c(2,2))
+plot(lm.final.model)
+```
+Diagnostic plots show no issues with the model fit. The residuals display a random scattering of points indicating the linearity assumption has been met and the residuals variance does not appear to increase/decrease except for a few values but I don't think this is enough evidence to say that the homoscedasticity assumption is invalid. The points follow a straight line in the QQ plot with the tails deviating slightly but not extreme enough to indicate the normality assumption is invalid. The cooks distance plot shows no influential points are present in the data. Therefore 
 
 ## Task 8
 
-The final model is $log(y_{ijkwz})=\beta_{0}+\beta_{1}x_{ijkwz}+\beta_{2}x_{ijkwz}^{2}+\alpha_{j}^{G}+\alpha_k^{S}+\alpha_{w}^{T}+\alpha_{z}^{L}+\beta^{L}x_{ijkwz}+\beta^{S}x_{ijkwz}+\beta^{T}x_{ijkwz}+\alpha^{SG}_{jk}+\epsilon_{ijkwz}$.
+The final model is $log(y_{ijkwz})=\beta_{0}+\beta_{1}x_{ijkwz}+\beta_{2}x_{ijkwz}^{2}+\alpha_{j}^{G}+\alpha_k^{S}+\alpha_{w}^{T}+\alpha_{z}^{L}+\alpha^{SG}_{jk}+\epsilon_{ijkwz}$.
 
 ```{r}
-data.frame("coefficent"=tidy(step.method)[,1],exp(tidy(step.method)[,2]))
+data.frame("coefficent"=tidy(lm.final.model)[,1],exp(tidy(lm.final.model)[,2]),tidy(lm.final.model)[,5])
 
-summary(step.method)
+kable(data.frame("coefficent"=tidy(lm.final.model)[,1],exp(tidy(lm.final.model)[,2]),tidy(lm.final.model)[,5]))%>%
+  kable_classic_2()
+
+summary(lm.final.model)
+
+#Calculating confidence intervals 
+
+test <- tidy(lm.final.model)
+
+lwr <- tidy(lm.final.model)$estimate+c(-1)*qnorm(0.975)*tidy(lm.final.model)$std.error
+upr <- tidy(lm.final.model)$estimate+c(1)*qnorm(0.975)*tidy(lm.final.model)$std.error
 ```
-Due to the model being a log-linear model the explanatory variables have a multiplicative effect on the response. Exponentiating the estimated coefficients to find their effect on expenditure, first I note that the income interactions although statistically significant are not meaningful in reality as there effect on expenditure is negligible. All their coefficients have a value of approximately 1 thus have no effect on expenditure. Therefore, I ignore these interaction terms when making inference of the model as they won't change the results by any meaningful amount and it allows the effects of the exploratory variables to be generalised instead of having to consider its effect with each possible value of the variable sit has interactions with.
+Due to the model being a log-linear model the explanatory variables have a multiplicative effect on the response. Exponentiating the estimated coefficients to find their effect on expenditure gives the above table.
 
 
 
