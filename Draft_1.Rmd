@@ -369,19 +369,41 @@ The final model is $log(y_{ijkwz})=\beta_{0}+\beta_{1}x_{ijkwz}+\beta_{2}x_{ijkw
 ```{r}
 data.frame("coefficent"=tidy(lm.final.model)[,1],exp(tidy(lm.final.model)[,2]),tidy(lm.final.model)[,5])
 
-kable(data.frame("coefficent"=tidy(lm.final.model)[,1],exp(tidy(lm.final.model)[,2]),tidy(lm.final.model)[,5]))%>%
-  kable_classic_2()
 
 summary(lm.final.model)
 
 #Calculating confidence intervals 
 
-test <- tidy(lm.final.model)
+lwr <-exp(tidy(lm.final.model)$estimate+c(-1)*qnorm(0.975)*tidy(lm.final.model)$std.error)
+upr <- exp(tidy(lm.final.model)$estimate+c(1)*qnorm(0.975)*tidy(lm.final.model)$std.error)
 
-lwr <- tidy(lm.final.model)$estimate+c(-1)*qnorm(0.975)*tidy(lm.final.model)$std.error
-upr <- tidy(lm.final.model)$estimate+c(1)*qnorm(0.975)*tidy(lm.final.model)$std.error
+Point.estimates <- round(exp(tidy(lm.final.model)[,2]),3)
+p.values <- round(tidy(lm.final.model)[,5],3)
+
+data.frame("coefficent"=tidy(lm.final.model)[,1],
+                 Point.estimates,
+                 "Confidence Interval 95%"=c(paste("(",round(lwr,3),", ",round(upr,3),")")),
+                 p.values)%>%
+  kable(digit=3,caption = "Summary of variables affecting expeniture")%>%
+  kable_classic(full_width=F,latex_options = c("hold_position"))
 ```
-Due to the model being a log-linear model the explanatory variables have a multiplicative effect on the response. Exponentiating the estimated coefficients to find their effect on expenditure gives the above table.
+Due to the model being a log-linear model the explanatory variables have a multiplicative effect on the response. Exponentiating the estimated coefficients to find their effect on expenditure gives the above table. I note that all values have been rounded to 3 decimal places thus the zero p-values are due to p-values being too small be displayed and similarly the effect of income squared is too small to be shown.
+
+Interpreting the above table the intercept value is for a male headed household of 1 person, publicly rented in full time employment who has an income of £0. Clearly this does not make sense
+
+I start with the terms that have no interaction. For labour force there is a statistically significant difference between those in full time job and those unemployed with those unemployed having an associated decrease in expenditure of (8.5%,34.1%) compared to those in full time work with all other variables held constant. The other factor levels of labour force (Part time and inactive) are not significantly different when compared to full time workersa
+
+My inference is drawn from the final model summary [**table x**] above. The difference between full time work and being unemployed was highly statistically significant. With those unemployed having an associated decrease in expenditure of (8.5%,34.1%) 95% CI compared to those in full time work with all other variables held constant. However the difference between full time work and being inactive or in part time work was not significant (CI included 1) therefore with all other variables constant there is no evidence that being in one of these 3 factors compared to another influences the expenditure of the household.
+
+The difference between publicly rented properties expenditure and either privately rented or owned properties expenditure were statistically significant. With the associated increase in expenditure of (22%,44.1%) and (11.5%,28.1%) 95% CI's respectively with all other variables held constant.
+
+Due to income squared term the associated effect of an increase in income on expenditure depends on the initial value of income
+
+
+
+
+
+
 
 
 
