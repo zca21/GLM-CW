@@ -391,32 +391,29 @@ Due to the model being a log-linear model the explanatory variables have a multi
 
 Interpreting the above table the intercept value is for a male headed household of 1 person, publicly rented in full time employment who has an income of £0. Clearly this does not make sense
 
-I start with the terms that have no interaction. For labour force there is a statistically significant difference between those in full time job and those unemployed with those unemployed having an associated decrease in expenditure of (8.5%,34.1%) compared to those in full time work with all other variables held constant. The other factor levels of labour force (Part time and inactive) are not significantly different when compared to full time workersa
+My inference is drawn from the final model summary [**table x**] above. The difference between full time work and being unemployed was highly statistically significant. With those unemployed having an associated decrease in expenditure of (*8.5%*,*34.1%*) 95% CI compared to those in full time work with all other variables held constant. However the difference between full time work and being inactive or in part time work was not significant (CI included 1) therefore with all other variables constant there is no evidence that being in one of these 3 factors compared to another influences the expenditure of the household.
 
-My inference is drawn from the final model summary [**table x**] above. The difference between full time work and being unemployed was highly statistically significant. With those unemployed having an associated decrease in expenditure of (8.5%,34.1%) 95% CI compared to those in full time work with all other variables held constant. However the difference between full time work and being inactive or in part time work was not significant (CI included 1) therefore with all other variables constant there is no evidence that being in one of these 3 factors compared to another influences the expenditure of the household.
+The difference between publicly rented properties expenditure and either privately rented or owned properties expenditure were statistically significant. With the associated increase in expenditure of (*22%*,*44.1%*) and (*11.5%*,*28.1%*) 95% CI's respectively with all other variables held constant.
 
-The difference between publicly rented properties expenditure and either privately rented or owned properties expenditure were statistically significant. With the associated increase in expenditure of (22%,44.1%) and (11.5%,28.1%) 95% CI's respectively with all other variables held constant.
+Due to squared income squared the effect of an increase in income on expenditure depends on the initial value of income. Assuming all other variables are held constant the percentage increase o expenditure is $(\frac{exp(\beta_1(x+y)+\beta_2(x+y)^2)}{exp(\beta_1x+\beta_2x^2)}-1)*100$ where x is the initial value of income and y is the increase in income, $\beta_1=0.002285$ and $\beta_2=-0.000001036$. Thus, for a household earning the mean income of £512, a £20 increase in income increases expenditure by approximately *2.4%* whereas for a household earning only £300 the same £20 increase, increases expenditure by approximately *3.3%*. Due to the negative quadratic term the higher the initial income the less of a positive multiplicative effect an increase in expenditure has on expenditure.
 
-Due to income squared term the associated effect of an increase in income on expenditure depends on the initial value of income
+```{r,echo=F}
+#calculating percent increase
+beta_1 <- 0.002285
+beta_2 <- -0.000001036
+x <- 300
+inc <- 20
+
+(exp(beta_1*(x+inc)+beta_2*(x+inc)^2)/exp(beta_1*x+beta_2*x^2)-1)*100
+```
+
+The final 2 variables, sex of household head and household size have an interaction between them. However, only the household size of 3 level has a statistically significant interaction with sex of household head. Therefore as the other levels 
+
+The sex of the household head is highly statistically significant with being female head increasing the expenditure by (*5.6%*,*25.9%*) 95% CI compared to a male head with all other variables held constant. Household size is extremely statistically significant with an increase in expenditure of (*22.4%*,*45.5*),  (*31.3%*,*66.8%*), (*34.9%*,*81.6%*) 95% CI's for households of size 2,4,5+ when compared to a household of size 1 with all other variables held constant. For the effect on expenditure between a household of size 1 and size 3 because of the significant interaction with sex if the household head is male the CI is (*36.2%*,*71.9%*) and (*-15.7%*,*+52.3%*) if female is it is with all other variables held constant. NOte that the for the fmale head CI 0% is included therefore the being a 
+
+FINISH THIS BIT OFF!
 
 
-
-
-
-
-
-
-
-I consider the explantory variables in approximate importance (affects expenditure the most). 
-
-
-income (with everything else constant) - interactions with  size, labour and tenure (all are insignificant) and squared term
-gender - interaction with size
-tenure - interaction with income 
-size - interaction with gender and income
-labour - interaction with income
-
-Most important variables (can ignore the interactions with income as approximately 1). labour force (big decrease one nearly halves),size (large increase up to 80%), tenure (large increase one is 50%), sex (increase 18%- but this is then taken out by interaction with larger households)
 
 
 Mention confounders, thus association not effect? As can't prove causailty
