@@ -409,13 +409,15 @@ inc <- 20
 
 The final 2 variables, sex of household head and household size have an interaction between them. However, only the household size of 3 level has a statistically significant interaction with sex of household head. Therefore as the other levels 
 
-The sex of the household head is highly statistically significant with being female head increasing the expenditure by (*5.6%*,*25.9%*) 95% CI compared to a male head with all other variables held constant. Household size is extremely statistically significant with an increase in expenditure of (*22.4%*,*45.5*),  (*31.3%*,*66.8%*), (*34.9%*,*81.6%*) 95% CI's for households of size 2,4,5+ when compared to a household of size 1 with all other variables held constant. For the effect on expenditure between a household of size 1 and size 3 because of the significant interaction with sex if the household head is male the CI is (*36.2%*,*71.9%*) and (*-15.7%*,*+52.3%*) if female is it is with all other variables held constant. NOte that the for the fmale head CI 0% is included therefore the being a 
+The sex of the household head is highly statistically significant with being female head increasing the expenditure by (*5.6%*,*25.9%*) 95% CI compared to a male head with all other variables held constant. Household size is extremely statistically significant with an increase in expenditure of (*22.4%*,*45.5*),  (*31.3%*,*66.8%*), (*34.9%*,*81.6%*) 95% CI's for households of size 2,4,5+ when compared to a household of size 1 with all other variables held constant. For the effect on expenditure between a household of size 1 and size 3 because of the significant interaction with sex if the household head is male the CI is (*36.2%*,*71.9%*) and (*-15.7%*,*+52.3%*) if female is it is with all other variables held constant. Note that the for the female head CI 0% is included therefore there is no statistically significant difference in expenditure between a household of size 1 with male head and a household of size 3 with a female head with all other variables held constant.
 
-FINISH THIS BIT OFF!
+Overall an increase in income, higher household size, being a female head and living in a owned or privately rented increase the % expenditure when compared to a single male headed household living in a publicly rented house (unless a female head with size 3 household). Whereas being unemployed compared to in full time work decreases the % of expenditure.
 
+All the variables mentioned above were statistically significant in their association with expenditure. However, just because they are significant, it does not mean they influence expenditure. There could be confounding or simple chance causing these results. However, some areas of confidence are:
 
+* income, logically if you make more money you have more available to spend 
+* household size, larger households are more expensive thus require more spending
 
-
-Mention confounders, thus association not effect? As can't prove causailty
+sex, tenure, labour force
 
 
