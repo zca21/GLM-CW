@@ -65,7 +65,17 @@ std.error=sqrt(diag(solve(t(X)%*%X)))
 std.error
 
 #T-statistic
-beta.fin[2]/std.error[2]
+T.stat <- beta.fin[2]/std.error[2]
 
-qt(0.975,1)
+qnorm(0.975) 
+
+#p-value calculation
+1-pnorm(T.stat)
 ```
+
+```{r}
+#Checking with R's own function
+fit <- glm(y~X[,2], family  = Gamma(link="log"))
+summary(fit,dispersion=1)  
+```
+
