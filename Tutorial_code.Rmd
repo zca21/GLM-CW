@@ -77,6 +77,7 @@ MLE.conv <- function(y,X){
 MLE.output <- MLE.conv(y,X)
 MLE.output$estimates
 
+
 #Testing against glm function
 glm.model <- glm(y~x,family = "binomial")
 summary(glm.model)

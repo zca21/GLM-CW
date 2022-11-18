@@ -1,0 +1,40 @@
+---
+title: "Untitled"
+output: html_document
+date: "2022-10-29"
+---
+```{r,echo=F,eval=F}
+#extra code that may not use
+pairs(expend.df)
+xtabs(~expend.df$house.ten+expend.df$sex.hh)
+
+par(mfrow=c(1,2))
+hist(expend.df$expenditure,breaks = 20,
+     xlab = "Total weekly household expenditure (GBP)")
+hist(log(expend.df$expenditure),breaks = 20,
+     xlab = " Log of total weekly \n household expenditure (GBP)")
+#Applying log transform gives a more normal looking distribution
+```
+
+```{r}
+# #as expected the normal QQ plot shows 'bad fit'
+
+# #try gamma as good for postively skewed continous data
+# gamma.income <-glm(expenditure~income,data=expend.df,family="Gamma")
+# summary(gamma.income)
+# plot(gamma.income)
+# #bad fit (explain)
+# 
+# #out of all models log linear is the most appropriate
+```
+
+```{r}
+#Creating model with all possible 2 way interactions (not a good idea but just for interest :P)
+lm.log.full<-lm(log(expenditure)~income+I(income^2)+income*sex.hh+income*hh.adults+income*house.ten+income*lab.force+income*hh.size+sex.hh*hh.adults+sex.hh*house.ten+sex.hh*lab.force+sex.hh*hh.size+hh.adults*house.ten+hh.adults*lab.force+hh.adults*hh.size+house.ten*lab.force+house.ten*hh.size+lab.force*hh.size,data=expend.df)
+summary(lm.log.full)
+
+step.method<- step(lm.log.full,trace=F)
+summary(step.method)
+
+```
+
