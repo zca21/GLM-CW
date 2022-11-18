@@ -431,11 +431,11 @@ First, interpreting the intercept value, it is for a male headed household of 1 
 
 The difference between full time work and being unemployed was highly statistically significant. With unemployed households compared to full time employment households having a 95% CI of [0.659, 0.915] which corresponds to a **8.5%** to **34.1%** decrease in expenditure with all other variables held constant.
 
-However the difference between full time work and being inactive or in part time work was not significant (the 95% CI included 1) therefore with all other variables constant there is no evidence that being in one of these 3 factors compared to another of influences the expenditure of the household.
+However the difference between full time work and being inactive or in part time work was not significant (the 95% CI included 1) therefore with all other variables constant there is no evidence that being in one of these 3 factors compared to another influences the expenditure of the household.
 
-The difference between publicly rented properties expenditure and either privately rented or owned properties expenditure were statistically significant. With the associated 95% CI of [1.22, 1.441] and [1.115 , 1.281] which corresponds to a **22%** to **44.1%** and a **11.5%** **28.1%** increase in expenditure respectively with all other variables held constant.
+The difference between a households expenditure for households which live in a publicly rented property and either a privately rented or owned property were statistically significant. With the associated 95% CI of [1.22, 1.441] and [1.115 , 1.281] which corresponds to a **22%** to **44.1%** and a **11.5%** **28.1%** increase in expenditure respectively with all other variables held constant.
 
-Due to income having a squared term the effect of an increase in income on expenditure depends on the initial value of income. To demonstrate this I produced the plot below showing how the percent increase in expenditure varies with the initial income for several different increases in income. For all but the most extreme weekly incomes (over £1000) income has a positive effect on expenditure. 
+Due to income having a squared term the effect of an increase in income on expenditure depends on the initial value of income. To demonstrate this I produced the plot below showing how the percent increase in expenditure varies with the initial income of a household for several different increases in household income. For all but the most extreme household incomes (over £1000), income has a positive effect on expenditure with the higher the initial income the less of a positive effect on expenditure an increase in income has (seen by negative gradient in below plot and which is due to the negative income squared regression coefficient). 
 ```{r,include=F}
 #calculating percent increase
 beta_1 <- 0.002285
@@ -445,7 +445,7 @@ inc <- 20
 
 (exp(beta_1*(x+inc)+beta_2*(x+inc)^2)/exp(beta_1*x+beta_2*x^2)-1)*100
 
-#Finding max value of icome in dataset
+#Finding max value of income in dataset
 max(expend.df$income)
 #max income is 1184.472 (approx 1200)
 
@@ -456,33 +456,42 @@ expend.inc.20 <- (exp(beta_1*(x+inc)+beta_2*((x+inc)^2))/exp(beta_1*x+beta_2*x^2
 inc<-50
 expend.inc.50 <- (exp(beta_1*(x+inc)+beta_2*((x+inc)^2))/exp(beta_1*x+beta_2*x^2)-1)*100
 
-test <- data.frame("Init.inc"=c(x,x),
+income.affect.df <- data.frame("Init.inc"=c(x,x),
                    "Inc.expend"=c(expend.inc.20,expend.inc.50),
                    "Inc.inc"=c(rep("£20",121),rep("£50",121)))%>%
   mutate(Inc.inc=factor(Inc.inc,levels = c("£20","£50"),labels=c("£20","£50")))
 
-ggplot(aes(Init.inc,Inc.expend,colour=Inc.inc),data=test)+
-  geom_line()+
-  ylab("Increase in expenditure (%)")+
-  xlab("Initial income (£)")
 ```
 
-```{r,echo=F,fig.height=3}
-ggplot(aes(Init.inc,Inc.expend,colour=Inc.inc),data=test)+
+```{r,echo=F,fig.height=4}
+#Plotting affect of income on expenditure
+
+ggplot(aes(Init.inc,Inc.expend,colour=Inc.inc),data=income.affect.df)+
   geom_line()+
   ylab("Increase in expenditure (%)")+
   xlab("Initial income (£)")+
-  ggtitle("Effect of income on expenditure")
+  labs(colour = "Increase in\n income amount") +
+  ggtitle("Affect of income on expenditure using final model")+
+  theme(legend.position="bottom",
+        legend.title=element_text(size=8))
 ```
 
 
-The final 2 variables, sex of household head and household size have an interaction between them. However, only the household size of 3 level has a statistically significant interaction with sex of household head. Therefore as the other levels 
 
-The sex of the household head is highly statistically significant with being female head increasing the expenditure by (*5.6%*,*25.9%*) 95% CI compared to a male head with all other variables held constant. Household size is extremely statistically significant with an increase in expenditure of (*22.4%*,*45.5*),  (*31.3%*,*66.8%*), (*34.9%*,*81.6%*) 95% CI's for households of size 2,4,5+ when compared to a household of size 1 with all other variables held constant. For the effect on expenditure between a household of size 1 and size 3 because of the significant interaction with sex if the household head is male the CI is (*36.2%*,*71.9%*) and (*-15.7%*,*+52.3%*) if female is it is with all other variables held constant. Note that the for the female head CI 0% is included therefore there is no statistically significant difference in expenditure between a household of size 1 with male head and a household of size 3 with a female head with all other variables held constant.
+The final 2 variables, sex of household head and household size have an interaction between them. However, only the household size of 3 level has a statistically significant interaction with sex of household head. Therefore as there is no evidence the other levels of the interaction are different from the reported associations without the interaction included I will not report them.
 
-Overall an increase in income, higher household size, being a female head and living in a owned or privately rented increase the % expenditure when compared to a single male headed household living in a publicly rented house (unless a female head with size 3 household). Whereas being unemployed compared to in full time work decreases the % of expenditure.
+The sex of the household head is highly statistically significant with being female head having a 95% CI of [1.056, 1.259] which corresponds to a **5.6%** to **25.9%**  increase the expenditure compared to a male head with all other variables held constant (and for a household not of size 3). Household size is also extremely statistically significant with a 95% CI of [1.224, 1.455], [1.313, 1.668] and [1.349, 1.816] for households of size 2, 4 and 5+ respectively when compared to a household of size 1 with all other variables held constant which corresponds to a **22.4%** to **45.5%**, a **31.3%** to **66.8%** and a **34.9%** to **81.6%** respectively. 
 
-All the variables mentioned above were statistically significant in their association with expenditure. However, just because they are significant, it does not mean they influence expenditure. There could be confounding or simple chance causing these results. However, some areas of confidence are:
+For the effect on expenditure between a household of size 1 and size 3 because of the significant interaction with sex of household head if the household head is male the 95% CI is [1.362, 1.719] and [0.912, 1.920] if female with all other variables held constant. Note that for the female head 1 is included in the CI, therefore there is no evidence of a difference in expenditure between a household of size 1 with a female head and a household of size 3 with a female head with all other variables held constant. However for a for a male household head, a household of size 3 compared to size 1 corresponds to a **36.2%** to **71.9%** increase in expenditure with all other variables held constant.
 
-* income, logically if you make more money you have more available to spend 
-* household size, larger households are more expensive thus require more spending
+Overall an increase in income (except for extremely high incomes), higher household size, being household with a female head and living in a owned or privately rented increase the expenditure of the household (compared to a single male headed household living in a publicly rented house, unless a female head with size 3 household). Whereas being unemployed compared to in full time work decreases the expenditure of the household.
+
+I note that even though the variables mentions above had a  statistically significant association with expenditure this could be spurious and due to confounding from variables not included in the model, simple chance or bias from the sample the model was based on. However, some areas of confidence of causation due to logical arguments are:
+
+* Income, logically if you make more money you have more available to spend thus increasing expenditure
+* Household size, larger households are more expensive thus require more spending
+* Labour force, if you are unemployed compared to having work you are likely to be more frugal and thus reduce expenditure
+
+Further investigation may be required for tenure type as it could be other variables which cause a difference in tenure are responsible.
+
+
