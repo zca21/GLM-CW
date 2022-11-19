@@ -482,6 +482,64 @@ The final 2 variables, sex of household head and household size have an interact
 
 The sex of the household head is highly statistically significant with being female head having a 95% CI of [1.056, 1.259] which corresponds to a **5.6%** to **25.9%**  increase the expenditure compared to a male head with all other variables held constant (and for a household not of size 3). Household size is also extremely statistically significant with a 95% CI of [1.224, 1.455], [1.313, 1.668] and [1.349, 1.816] for households of size 2, 4 and 5+ respectively when compared to a household of size 1 with all other variables held constant which corresponds to a **22.4%** to **45.5%**, a **31.3%** to **66.8%** and a **34.9%** to **81.6%** respectively. 
 
+```{r,echo=F}
+#Creating table for effect of sex and household size
+sum.final.model <- summary(lm.final.model)
+
+#Vector of point estimate of household size
+house.size.effect <- c(0,
+                       sum.final.model$coefficients[9,1],
+                       sum.final.model$coefficients[10,1],
+                       sum.final.model$coefficients[11,1],
+                       sum.final.model$coefficients[12,1])
+#Vector of point estimate of effect of household size and female interaction
+house.size.int <- c(0,
+                       sum.final.model$coefficients[14,1],
+                       sum.final.model$coefficients[15,1],
+                       sum.final.model$coefficients[16,1],
+                       sum.final.model$coefficients[17,1])
+#vecotr of standard error of household size
+house.size.effect.std <- c(0,
+                       sum.final.model$coefficients[9,2],
+                       sum.final.model$coefficients[10,2],
+                       sum.final.model$coefficients[11,2],
+                       sum.final.model$coefficients[12,2])
+#vector of standard error of interation of household size and female
+house.size.int.std <- c(0,
+                       sum.final.model$coefficients[14,2],
+                       sum.final.model$coefficients[15,2],
+                       sum.final.model$coefficients[16,2],
+                       sum.final.model$coefficients[17,2])
+#lower and upper 95% CI bound for household size
+house.size.lwr <- house.size.effect-1.96*house.size.effect.std
+house.size.upr <- house.size.effect+1.96*house.size.effect.std
+#lower and upper 95% CI bound for household and female interaction
+house.size.int.lwr <- house.size.int-1.96*house.size.int.std
+house.size.int.upr <- house.size.int+1.96*house.size.int.std
+
+#lower and upper CI bound for being female and of household size [i]
+female.house.lwr <- house.size.lwr+house.size.int.lwr+(sum.final.model$coefficients[13,1]-1.96*sum.final.model$coefficients[13,2])
+female.house.upr <- house.size.upr+house.size.int.upr+(sum.final.model$coefficients[13,1]+1.96*sum.final.model$coefficients[13,2])
+
+#Creating vector of 95% CI for male and female household head with [ith] household size
+male.CI <- paste0("(",round(exp(house.size.lwr),3), ", ",round(exp(house.size.upr),3),")")
+female.CI <- paste0("(",round(exp(female.house.lwr),3), ", ",round(exp(female.house.upr),3),")")
+
+data.sex.household.CI <- data.frame(t(data.frame("Male"=male.CI, "Female"=female.CI)))%>%
+  rename("1 Person"="X1",
+         "2 Persons"="X2",
+         "3 Persons"="X3",
+         "4 Persons"="X4",
+         "5+ Persons"="X5")
+
+#creating table of 95% CI calculated
+knitr::kable(data.sex.household.CI,digits=3,caption = "95% CI compared to male headed household of 1 person")%>%
+  row_spec(0,bold=T)%>%
+  column_spec(1,bold=T)%>%
+  kable_styling(position = "center",latex_options = "HOLD_position")
+```
+
+
 For the effect on expenditure between a household of size 1 and size 3 because of the significant interaction with sex of household head if the household head is male the 95% CI is [1.362, 1.719] and [0.912, 1.920] if female with all other variables held constant. Note that for the female head 1 is included in the CI, therefore there is no evidence of a difference in expenditure between a household of size 1 with a female head and a household of size 3 with a female head with all other variables held constant. However for a for a male household head, a household of size 3 compared to size 1 corresponds to a **36.2%** to **71.9%** increase in expenditure with all other variables held constant.
 
 Overall an increase in income (except for extremely high incomes), higher household size, being household with a female head and living in a owned or privately rented increase the expenditure of the household (compared to a single male headed household living in a publicly rented house, unless a female head with size 3 household). Whereas being unemployed compared to in full time work decreases the expenditure of the household.
