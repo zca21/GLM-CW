@@ -154,7 +154,7 @@ plot(lm.income.sqd,2)
 ```
 
 ## Part 4: Regressing the natural logarithm of expenditure on income
-Fitting the same model as in task 2 but with the response of expenditure logged (a log-linear model) $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$ gives the below estimated coefficients and standard errors.
+Fitting the same model as in task 2 but with the log of the response expenditure (a log-linear model) $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$ gives the below estimated coefficients and standard errors.
 
 ```{r,echo=F}
 #Question 4
@@ -428,52 +428,7 @@ However the difference between full time work and being inactive or in part time
 
 The difference between a households expenditure for households which live in a publicly rented property and either a privately rented or owned property were statistically significant. With the associated 95% CI of [1.22, 1.441] and [1.115 , 1.281] which corresponds to a **22%** to **44.1%** and a **11.5%** **28.1%** increase in expenditure respectively with all other variables held constant.
 
-Due to income having a squared term the effect of an increase in income on expenditure depends on the initial value of income. To demonstrate this I produced the plot below showing how the percent increase in expenditure varies with the initial income of a household for several different increases in household income. For all but the most extreme household incomes (over £1000), income has a positive effect on expenditure with the higher the initial income the less of a positive effect on expenditure an increase in income has (seen by negative gradient in below plot and which is due to the negative income squared regression coefficient). 
-```{r,include=F}
-#calculating percent increase
-beta_1 <- 0.002285
-beta_2 <- -0.000001036
-x <- 900
-inc <- 20
-
-(exp(beta_1*(x+inc)+beta_2*(x+inc)^2)/exp(beta_1*x+beta_2*x^2)-1)*100
-
-#Finding max value of income in dataset
-max(expend.df$income)
-#max income is 1184.472 (approx 1200)
-
-#Creating plot to show change in percent of 
-x <- seq(from=0,to=1200,by=10)
-inc <- 20
-expend.inc.20 <- (exp(beta_1*(x+inc)+beta_2*((x+inc)^2))/exp(beta_1*x+beta_2*x^2)-1)*100
-inc<-50
-expend.inc.50 <- (exp(beta_1*(x+inc)+beta_2*((x+inc)^2))/exp(beta_1*x+beta_2*x^2)-1)*100
-
-income.affect.df <- data.frame("Init.inc"=c(x,x),
-                   "Inc.expend"=c(expend.inc.20,expend.inc.50),
-                   "Inc.inc"=c(rep("£20",121),rep("£50",121)))%>%
-  mutate(Inc.inc=factor(Inc.inc,levels = c("£20","£50"),labels=c("£20","£50")))
-
-```
-
-```{r,echo=F,fig.height=4}
-#Plotting affect of income on expenditure
-
-ggplot(aes(Init.inc,Inc.expend,colour=Inc.inc),data=income.affect.df)+
-  geom_line()+
-  ylab("Increase in expenditure (%)")+
-  xlab("Initial income (£)")+
-  labs(colour = "Increase in\n income amount") +
-  ggtitle("Affect of income on expenditure using final model")+
-  theme(legend.position="bottom",
-        legend.title=element_text(size=8))
-```
-
-
-
-The final 2 variables, sex of household head and household size have an interaction between them. However, only the household size of 3 level has a statistically significant interaction with sex of household head. Therefore as there is no evidence the other levels of the interaction are different from the reported associations without the interaction included I will not report them.
-
-The sex of the household head is highly statistically significant with being female head having a 95% CI of [1.056, 1.259] which corresponds to a **5.6%** to **25.9%**  increase the expenditure compared to a male head with all other variables held constant (and for a household not of size 3). Household size is also extremely statistically significant with a 95% CI of [1.224, 1.455], [1.313, 1.668] and [1.349, 1.816] for households of size 2, 4 and 5+ respectively when compared to a household of size 1 with all other variables held constant which corresponds to a **22.4%** to **45.5%**, a **31.3%** to **66.8%** and a **34.9%** to **81.6%** respectively. 
+Sex of household head and household size have an interaction between them therefore cannot be reported separately. To easily display the effects of both on expenditure I created the below table which displays the multiplicative effect of sex and household size on expenditure.
 
 ```{r,echo=F}
 #Creating table for effect of sex and household size
@@ -519,28 +474,66 @@ male.CI <- paste0("(",round(exp(house.size.lwr),3), ", ",round(exp(house.size.up
 female.CI <- paste0("(",round(exp(female.house.lwr),3), ", ",round(exp(female.house.upr),3),")")
 
 #creating table of 95% CI calculated
-data.frame(t(data.frame("Male"=male.CI, "Female"=female.CI)))%>%
+data.frame(t(data.frame("Male head"=male.CI, "Female head"=female.CI)))%>%
   rename("1 Person"="X1",
          "2 Persons"="X2",
          "3 Persons"="X3",
          "4 Persons"="X4",
          "5+ Persons"="X5")%>%
-  kable(caption = "95% CI compared to male headed household of 1 person",format = 'pandoc')
+  kable(caption = "95% CI of multiplcative effect on expenditure compared to male headed household of 1 person",format = 'pandoc')
+
+table(expend.df$sex.hh,expend.df$hh.size)
 ```
 
+
+For households of size 1,2 and 4 a female household head corresponds to an increase in expenditure compared to a male household of size 1 however, for a household of size 3 or 5+ there is not enough evidence to support a difference in expenditure (CI includes 1). I note the confidence intervals are very large thus there is alot of uncertainty in these results and thus the reason for no found effect may be due to insufficient power of thr sample.
+
+Compared to a household of size 1 all larger households increase expenditure if household head is male whereas due to the uncertainty there is no evidence this is the case for female household heads due to overlapping CI.
+
+Due to income having a squared term the effect of an increase in income on expenditure depends on the initial value of income. To demonstrate this I produced the plot below showing how the percent increase in expenditure varies with the initial income of a household for several different increases in household income. For all but the most extreme household incomes (over £1000), income has a positive effect on expenditure with the higher the initial income the less of a positive effect on expenditure an increase in income has (seen by negative gradient in below plot and which is due to the negative income squared regression coefficient). 
 ```{r,include=F}
-# #creating table of 95% CI calculated
-# kable(data.frame(data.sex.household.CI), caption = "95% CI compared to male headed household of 1 person")%>%
-#   row_spec(0,bold=T)%>%
-#   column_spec(1,bold=T)%>%
-#   kable_classic(position = "center",latex_options = "HOLD_position")
-# 
-# knitr::kable(data.frame(tidy(lm.full.1.deletion)[14:22,1],exp(tidy(lm.full.1.deletion)[14:22,2])),digits=3)%>%
-#   row_spec(0,bold=T)%>%
-#   kable_styling(position = "center",latex_options = "HOLD_position")
+#calculating percent increase
+beta_1 <- 0.002285
+beta_2 <- -0.000001036
+x <- 900
+inc <- 20
+
+(exp(beta_1*(x+inc)+beta_2*(x+inc)^2)/exp(beta_1*x+beta_2*x^2)-1)*100
+
+#Finding max value of income in dataset
+max(expend.df$income)
+#max income is 1184.472 (approx 1200)
+
+#Creating plot to show change in percent of 
+x <- seq(from=0,to=1200,by=10)
+inc <- 20
+expend.inc.20 <- (exp(beta_1*(x+inc)+beta_2*((x+inc)^2))/exp(beta_1*x+beta_2*x^2)-1)*100
+inc<-50
+expend.inc.50 <- (exp(beta_1*(x+inc)+beta_2*((x+inc)^2))/exp(beta_1*x+beta_2*x^2)-1)*100
+
+income.affect.df <- data.frame("Init.inc"=c(x,x),
+                   "Inc.expend"=c(expend.inc.20,expend.inc.50),
+                   "Inc.inc"=c(rep("£20",121),rep("£50",121)))%>%
+  mutate(Inc.inc=factor(Inc.inc,levels = c("£20","£50"),labels=c("£20","£50")))
+
 ```
 
-For the effect on expenditure between a household of size 1 and size 3 because of the significant interaction with sex of household head if the household head is male the 95% CI is [1.362, 1.719] and [0.912, 1.920] if female with all other variables held constant. Note that for the female head 1 is included in the CI, therefore there is no evidence of a difference in expenditure between a household of size 1 with a female head and a household of size 3 with a female head with all other variables held constant. However for a for a male household head, a household of size 3 compared to size 1 corresponds to a **36.2%** to **71.9%** increase in expenditure with all other variables held constant.
+```{r,echo=F,fig.height=4}
+#Plotting affect of income on expenditure
+
+ggplot(aes(Init.inc,Inc.expend,colour=Inc.inc),data=income.affect.df)+
+  geom_line()+
+  ylab("Increase in expenditure (%)")+
+  xlab("Initial income (£)")+
+  labs(colour = "Increase in\n income amount") +
+  ggtitle("Affect of income on expenditure using final model")+
+  theme(legend.position="bottom",
+        legend.title=element_text(size=8))
+```
+
+
+
+
 
 Overall an increase in income (except for extremely high incomes), higher household size, being household with a female head and living in a owned or privately rented increase the expenditure of the household (compared to a single male headed household living in a publicly rented house, unless a female head with size 3 household). Whereas being unemployed compared to in full time work decreases the expenditure of the household.
 
@@ -550,6 +543,8 @@ I note that even though the variables mentions above had a  statistically signif
 * Household size, larger households are more expensive thus require more spending
 * Labour force, if you are unemployed compared to having work you are likely to be more frugal and thus reduce expenditure
 
-Further investigation may be required for tenure type as it could be other variables which cause a difference in tenure are responsible.
+Further investigation is required for the affect of sex of household head as due to the small sub samples t
+
+may be required for tenure type as it could be other variables which cause a difference in tenure are responsible.
 
 
