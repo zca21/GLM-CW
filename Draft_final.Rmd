@@ -96,20 +96,20 @@ grid.arrange(p1,p2,p3,p4,p5,p6,ncol=2,nrow=3)
 
 \newpage
 
-To assess the distribution of expenditure I produced the above histogram, it shows that expenditure has a positively skewed distribution (and thus the normality assumption used in linear regression may be invalid). Using a scatter plot to investigate the relationship between household income and expenditure , it shows there is a clear positive association.
+To assess the distribution of expenditure I produced the above histogram, it shows that expenditure has a positively skewed distribution (and thus the normality assumption used in linear regression may be invalid). Using a scatter plot to investigate the relationship between household income and expenditure, there is a clear positive association.
 Then to investigate the other categorical variables I used boxplots to display differences in the expenditure across the different levels (categories) of each variable. The differences shown in the plots are listed below:
 
-* Different household tenures categories have different weekly expenditure amounts with public rented households having a noticeably lower expenditure compared to the other 2 household levels.
-* Households with a female head have a slightly lower weekly expenditure compared to male household heads
+* Different household tenure categories have different weekly expenditure amounts with public rented households having a noticeably lower expenditure compared to the other 2 household levels.
+* Households with a female household head have a slightly lower weekly expenditure compared to male household heads.
 * Employment status appears to be associated with expenditure with unemployed households having a dramatically lower expenditure compared to households with full or part time employment status and inactive employment status households having a lower expenditure compared to households with full or part time employment status.
-* Household size generally appears to be positively correlated with expenditure, with larger households having a higher weekly expenditure (however 5+ person households break this trend with the expenditure being slightly decreasing, however this could be due to other variables or a small sample size of such households).
+* Household size generally appears to be positively correlated with expenditure, with larger households having a higher weekly expenditure (however 5+ person households break this trend with the expenditure slightly decreasing, however this could be due to other variables or a small sample size of such households).
 * Number of adults in the household also appears positively correlated with expenditure with households containing more adults having a higher expenditure.
 
 I note that these differences and possible associations may not be due to the variable mentioned but due to a third variable (a confounder) that affects both the categorical variable and expenditure (the response).
 \vspace{-5truemm}
 
 ## Part 2: Regressing expenditure on income
-Fitting the model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\epsilon$ where $y$ is the weekly household expenditure and the explanatory variable $x$ is weekly income and $i \in \{1,...,1200\}$ is the ith household in the dataset produces the below table (these are the same for all linear models mentioned in parts 2 to 6).It shows the estimated values of the intercept ($\beta_0$) and the estimated 'effect' of a 1 pound increase of income on expenditure ($\beta_1$) and their associated standard errors.
+Fitting the model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\epsilon_{i}$ where $y$ is the weekly household expenditure and the explanatory variable $x$ is weekly income and $i \in \{1,...,1200\}$ is the ith household in the dataset produces the below table (these are the same for all linear models mentioned in parts 2 to 6).
 \vspace{-5truemm}
 ```{r,echo=F}
 #Question 2
@@ -128,11 +128,11 @@ plot(lm.income,1)
 plot(lm.income,2)
 ```
 
-Viewing the above diagnostic plots for this model. The fitted vs residual plot shows the residuals are not equally spread around 0 with a greater spread of residuals above zero, meaning the assumption of linearity may not hold. Furthermore, the QQ normal plot has a positive U shape with the tails diverging heavily away from the straight line. This implies the normality assumption is invalid.
+Viewing the above diagnostic plots for this model. The fitted vs residual plot shows the residuals are not equally spread around 0 with a greater spread of residuals above zero, meaning the assumption of linearity is invalid. Furthermore, the QQ normal plot has a positive U shape with the tails diverging heavily away from the straight line. This implies the normality assumption is invalid.
 \newpage
 
 ## Part 3: Regressing expenditure on income and income squared
-Fitting a new linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\beta_2x^2_{i}+\epsilon$ with an added squared term of income gives the below estimated for the coefficients and their standard errors.
+Fitting a new linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\beta_2x^2_{i}+\epsilon_{i}$ (adding a squared term of income) gives the below estimate for the coefficients and their standard errors.
 
 ```{r,echo=F}
 #Question 3
@@ -140,11 +140,11 @@ Fitting a new linear model $y_{i}=\beta_{0}+\beta_{1}x_{i}+\beta_2x^2_{i}+\epsil
 lm.income.sqd <- lm(expenditure~income+I(income^2),data = expend.df)
 
 #Producing table of results
-knitr::kable(as.data.frame(tidy(lm.income.sqd)[,1:3]),digits=3,caption = "Estimated coefficients and SE for part 3 model")%>%
+knitr::kable(as.data.frame(tidy(lm.income.sqd)[,1:3]),digits=5,caption = "Estimated coefficients and SE for part 3 model")%>%
   row_spec(0,bold=T)%>%
   kable_styling(position = "center",latex_options = "HOLD_position")
 ```
-Looking at the produced diagnostic plots below for this model, in the fitted vs residual plot the residual values increase as the fitted values increase thus the homoscedasticity assumption may not be valid. The tails in the normal QQ plot also still deviate heavily away from the straight line meaning the normality assumption is invalid.
+Looking at the produced diagnostic plots below for this model, in the fitted vs residual plot the residual values increase as the fitted values increase thus the homoscedasticity assumption is invalid. The tails in the normal QQ plot also still deviate heavily away from the straight line meaning the normality assumption is invalid.
 
 ```{r,echo=F,fig.height=3.8}
 #Creating diagnostic plots
@@ -154,7 +154,7 @@ plot(lm.income.sqd,2)
 ```
 
 ## Part 4: Regressing the natural logarithm of expenditure on income
-Fitting the same model as in task 2 but with the log of the response expenditure (a log-linear model) $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon$ gives the below estimated coefficients and standard errors.
+Fitting the same model as in task 2 but with the log of the response expenditure (a log-linear model) $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\epsilon_{i}$ gives the below estimated coefficients and standard errors.
 
 ```{r,echo=F}
 #Question 4
@@ -162,11 +162,11 @@ Fitting the same model as in task 2 but with the log of the response expenditure
 lm.log.income<-lm(log(expenditure)~income,data = expend.df)
 
 #Producing table of results
-knitr::kable(as.data.frame(tidy(lm.log.income)[,1:3]),digits=3,caption = "Estimated coefficients and SE for part 4 model")%>%
+knitr::kable(as.data.frame(tidy(lm.log.income)[,1:3]),digits=5,caption = "Estimated coefficients and SE for part 4 model")%>%
   row_spec(0,bold=T)%>%
   kable_styling(position = "center",latex_options = "HOLD_position")
 ```
-Looking at the produced diagnostic plots above for this model, the data appears to be heteroscedastic as in the fitted vs residual plot the variance in the residuals decreases as the fitted values increases. Furthermore, the linear assumption also appears violated as the residuals appear to exhibit a slight negative quadratic shape. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid. 
+Looking at the produced diagnostic plots below for this model, the data appears to be heteroscedastic as the variance of the residuals in the fitted vs residual plot decreases as the fitted values increases. Furthermore, the linear assumption also appears violated as the residuals appear to exhibit a slight negative quadratic shape. The QQ plot shows the residuals stay close to the straight line thus normality assumption is valid. 
 
 \vspace{-25truemm}
 ```{r,echo=F,fig.height=3.8}
@@ -180,7 +180,7 @@ plot(lm.log.income,2)
 ## Part 5: Regressing the natural logarithm of expenditure on income and income squared
 \vspace{-2truemm}
 
-Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ gives the estimated coefficients and standard errors in the table below.
+Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon_{i}$ gives the estimated coefficients and standard errors in the table below.
 \vspace{-5truemm}
 ```{r,echo=F}
 #Question 4
@@ -188,7 +188,7 @@ Fitting the model $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon
 lm.log.income.sqd <- lm(log(expenditure)~income+I(income^2),data = expend.df)
 
 #Producing table of results
-knitr::kable(as.data.frame(tidy(lm.log.income.sqd)[,1:3]),digits=3,caption = "Estimated coefficients and SE for part 5 model")%>%
+knitr::kable(as.data.frame(tidy(lm.log.income.sqd)[,1:3]),digits=5,caption = "Estimated coefficients and SE for part 5 model")%>%
   row_spec(0,bold=T)%>%
   kable_styling(position = "center",latex_options = "HOLD_position")
 ```
@@ -200,7 +200,7 @@ par(mfrow=c(2,2))
 plot(lm.log.income.sqd)
 ```
 
-Producing the diagnostic plots below, the fitted vs residuals plot shows a fairly even scattering of points around 0 and a linear trend, however the variance of the residuals appears to decrease slightly as the fitted values increase. But, looking at the scale-location plot the residuals appear randomly spread around the red line and the red line through them stays fairly horizontal thus homoskedasticity assumptions appears valid. The QQ plot shows the points stay close to the straight line meaning the normality assumption is valid. The residual vs Leverage plot shows no influential points.
+Producing the diagnostic plots above, the fitted vs residuals plot shows a fairly even scattering of points around 0 and a linear trend, however the variance of the residuals appears to decrease slightly as the fitted values increase. But, looking at the scale-location plot the residuals appear randomly spread around the red line which stays fairly horizontal thus the homoskedasticity assumption appears valid. The QQ plot shows the points stay close to the straight line meaning the normality assumption is valid. The residual vs leverage plot shows there no influential points.
 
 
 ## Part 6: Comparing models
@@ -219,7 +219,7 @@ knitr::kable(Model.comparison.data,digits=3,caption = "Comparing the AIC and adj
 ```
 The model from part 5, $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\epsilon$ has the lowest AIC value of **1528.062** and the highest adjusted R squared value of **0.4635055**. Furthermore, from the diagnostic plots the normality assumption is valid and the fitted vs residual plot displays an even scattering of points around 0. Therefore the 4th model is my preferred model to describe the relationship between expenditure and income.
 
-The log-linear model means that the covarites (income and income squared) have a multiplicative effect on the response (expenditure). The squared term of income included in the model, means that the change in the mean of expenditure now depends on the value of income. Income has a positive association with expenditure with an increase in income causing a percent increase in expenditure. With the initial value of income affecting the magnitude of the percent increase on expenditure. Smaller initial values of income cause a greater percent increase on expenditure (due to the squared income term being negative). In particular, using a realistic increase in weekly income of £20 for a household earning the mean income of £512 gives an increase of $(\frac{exp(532\beta_1+532^{2}\beta_{2})}{exp(512\beta_1+512^{2}\beta_{2})}-1)$x100% = **3.25%**.
+The log-linear model means that the covarites (income and income squared) have a multiplicative effect on the response (expenditure). The squared term of income included in the model, means that the change in the mean of expenditure depends on the value of income. Income has a positive association with expenditure with an increase in income causing a percent increase in expenditure. With the initial value of income affecting the magnitude of the percent increase on expenditure. Smaller initial values of income cause a greater percent increase on expenditure (due to the squared income term being negative). In particular, using a realistic increase in weekly income of £20 for a household earning the mean income of £512 gives an increase of $(\frac{exp(532\beta_1+532^{2}\beta_{2})}{exp(512\beta_1+512^{2}\beta_{2})}-1)$x100% = **3.25%** in expenditure.
 
 ```{r,include=F}
 #calculating percent increase
@@ -244,7 +244,7 @@ None of the variables had a GVIF greater than 5, thus multicolinearity is not an
 #Creating tables for chi-squared test
 prop.table(table(expend.df$hh.size,expend.df$hh.adults),2)
 ```
-From the proportional table above there appears to be a relationship between the two variables. To investigate this further I created linear models including each variable separately and both together added to the model from part 5. In the model with only the number of adults variable added using an F-test the variable was significant at $\alpha=0.05$ with a p-value of **2.271e-11**. However, when adding both number of adults and household size only household size was significant with a p-value of **7.953e-15** and number of adults was no longer significant with a p-value of **0.7249** . Likely the household size was is confounding the effect of number of adults. Thus, I will include the size of a household in for the final model but not the number of adults.
+From the proportional table there is a clear relationship between the two variables. To investigate this further I created linear models based on the model selected in part 6 which I then added each covariate (household size and number of adults in household) separately and both together. In the model with only the covariate number of adults added using an F-test the variable was significant at $\alpha=0.05$ with a p-value of **2.271e-11**. However, when adding both the number of adults and household size only household size was significant with a p-value of **7.953e-15** and number of adults was no longer significant with a p-value of **0.7249** . This is due to the two covariates explaining much of the same variation in the data thus the number of adults becomes insignificant when both are included in the model. Therefore, I will consider the size of a household for the final model but not the number of adults.
 
 ```{r,include=F}
 #Producing models to check relationship of number of adults and household size
@@ -264,7 +264,7 @@ anova(lm.adult.size)
 
 Considering the possible interactions, I decided to only include 2 way interactions as higher order interactions make interpretation of the model much more complicated and there is no clear 3 way interactions that make sense.
 
-First I investigated interactions between income and the factor variables. I added each separately to the model from part 5 and the variable part of the interaction and used an F-test to see if the interaction was significant at the 5% level. income:labour force, income: household size and income: house tenure type were all significant, however income:sex was not. Therefore I will consider the 3 significant interactions for my final model.
+First I investigated interactions between income and the factor variables. I added each interaction separately to the model from part 5 and the variables included in the interaction then used an F-test to see if the interaction was significant at the 5% level. income:labour force, income: household size and income: house tenure type were all significant with p-values of **9.417e-05**, **0.002731** and **0.002709**, however income:sex was not with a p-value of **0.9657**. Therefore I will consider only the 3 significant interactions for my final model.
 
 ```{r,include=F}
 #Testing if interactions are significant
@@ -284,7 +284,7 @@ lm.int.income.ten <- lm(log(expenditure)~income*house.ten+I(income^2),data=expen
 anova(lm.int.income.ten)
 #Significant
 ```
-Next considering factor variable interactions. There are 6 possible factor interactions, of which I added each to the chosen model separately (plus the variables which were interacting) only sex:household size and labour:tenure were significant at the 5% level. Therefore, these are the only 2 I will consider for the final model.
+Next considering factor variable interactions. There are 6 possible factor interactions, of which I added each to the chosen model separately (plus the variables which were interacting) only sex:household size and labour:tenure were significant at the 5% level with p-values of **0.017408** and **0.033667**. Therefore, these are the only 2 way factor interactions I will consider for the final model.
 
 ```{r, include=F}
 lm.int.sex.size <- lm(log(expenditure)~income+I(income^2)+hh.size*sex.hh+lab.force+house.ten,data=expend.df)
@@ -312,16 +312,16 @@ anova(lm.int.labour.tenure)
 #significant
 ```
 
-To choose my final model I will start with a 'full' model that includes all variables that I want to consider. Then using AIC and adjusted $R^2$  as my model selection criteria I will remove explanatory variables (those that cause the AIC to become lower or increase the adjusted $R^2$  when removed). After this as the model is for exploratory analysis and not prediction a simpler model that is easier to interpret/ understand is preferable (Occam's razor), therefore if the model can simplified to only include the important variables and this does not significantly affect the AIC and $R^2$ this further reduced model will be my final model.
+To choose my final model I will start with a 'full' model that includes all variables that I want to consider. Then using AIC and my model selection criteria I will remove explanatory variables (those that cause the AIC to become lower when removed). After this as the model is for exploratory analysis and not prediction a simpler model that is easier to interpret/ understand is preferable (Occam's razor), therefore if the model can simplified to only include the important variables and this does not significantly affect the AIC and $R^2$ this further reduced model will be my final model.
 
-My 'full' model regresses the natural logarithm of expenditure on income, income squared, household tenure type, household size, sex of household head, labour force and interactions between income with tenure type, labour force and household size and also interactions between sex of household head and household size and labour force and tenure type. This can be fitted in R using the belwo code:
+My 'full' model regresses the natural logarithm of expenditure on income, income squared, household tenure type, household size, sex of household head, labour force and interactions between income with tenure type, labour force and household size and also interactions between sex of household head and household size and labour force and tenure type. This can be fitted in R using the below code:
 
 ```{r,eval=F}
 lm.log.full<-lm(log(expenditure)~income*lab.force+I(income^2)+income*house.ten+
                   income*hh.size+sex.hh*hh.size+lab.force:house.ten,data=expend.df)
 ```
 
-Then using the iterative method of deleting the variable that will reduce the AIC by the largest amount until no decrease in AIC is available. Implementing this algorithm I removed 1 variable, the interaction between labour force and household tenure type as this reduced the AIC from **1391.914** to **1386.878**. All variables left in the updated model are also statistically significant except for income:house tenure.
+Then using the iterative method of deleting the variable that will reduce the AIC by the largest amount until no decrease in AIC is available I removed 1 variable. This was the interaction between labour force and household tenure type as it reduced the AIC from **1391.914** to **1386.878** when removed. All variables left in the updated model are also statistically significant except for income:house tenure.
 
 
 ```{r, include=F}
@@ -350,7 +350,7 @@ anova(lm.full.1.deletion)
 #All variables left statistically significant except income:house.ten
 ```
 
-I then checked how important (the magnitude of impact on the response) the variables left in the model are. To find their impact on expenditure I exponentiated the estimated coefficients and note that due to log-linear model the effect is multiplicative.
+I then checked how important (the magnitude of impact on the response) the variables left in the model are. To find their impact on expenditure I exponentiated the estimated coefficients and note that due to log-linear model the effect of the exponentiated regression coefficients is multiplicative on expenditure.
 
 ```{r,include=F}
 #Looking at which exponentiated coefficients are approx 1
@@ -360,12 +360,12 @@ data.frame("coefficent"=tidy(lm.full.1.deletion)[,1],exp(tidy(lm.full.1.deletion
 
 ```{r,echo=F}
 #Producing table of all exponentiated regession coefficients that are approx 1
-knitr::kable(data.frame(tidy(lm.full.1.deletion)[14:22,1],exp(tidy(lm.full.1.deletion)[14:22,2])),digits=3,caption="Coefficents of explantory variables with negliable affect on expenditure",)%>%
+knitr::kable(data.frame(tidy(lm.full.1.deletion)[14:22,1],exp(tidy(lm.full.1.deletion)[14:22,2])),digits=5,caption="Coefficents of explantory variables with negliable affect on expenditure",)%>%
   row_spec(0,bold=T)%>%
   kable_styling(position = "center",latex_options = "HOLD_position", font_size = 7)
 ```
 
-Above is a table of the exponentatied estimated coefficients of all the variables which were approximately 1. These are all the possible interaction levels (excluding the dummy level) of the income interactions. Thus all income interactions are not meaningful/important as their exponentiated value is approximately 1. Therefore, their effect on expenditure is negligible so I remove them from the model as a simpler model is preferred. After removing these 3 variables, removing any more does not further decrease the AIC. Furthermore the difference in AIC between the simpler and more complicated model with the simple models AIC being **1406.732** compared to the more complicated model AIC of **1386.878**. Thus this simplified model is my final model.
+Above is a table of the exponentatied regression coefficients which were approximately 1. These were in fact all the possible interaction levels (excluding the dummy level) of the interactions with income. Thus all income interactions are not meaningful/important as their exponentiated value is approximately 1. Therefore, their effect on expenditure is negligible so I removed them from the model as a simpler model is preferred. After removing these 3 variables, removing any more does not further decrease the AIC. Furthermore the difference in AIC between the simpler and more complicated model is small with the simpler models AIC being **1406.732** compared to the more complicated models AIC of **1386.878**. Thus the simplified model is my final model.
 
 ```{r,include=F}
 #updating to simpler model
@@ -382,7 +382,7 @@ lm.final.model <- lm.simple.model.1
 AIC(lm.final.model)
 ```
 
-Producing diagnostic plots for this final model (seen below) shows no issues with the model fit. The residuals display a random scattering of points indicating the linearity assumption has been met and the residuals variance does not appear to increase/decrease except for a few values but I don't think this is enough evidence to say that the homoscedasticity assumption is invalid. This is further backed up by a straight nearly horizontal red line in the scale-location plot with an even random scattering of residuals around it. The points follow a straight line in the QQ plot with the tails deviating slightly but not extreme enough to indicate the normality assumption is invalid. The cooks distance plot shows no influential points are present in the data.
+Producing diagnostic plots for this final model (seen below) there is no evidence of issues with the model fit. The residuals display a random scattering of points indicating the linearity assumption has been met and the variance of the residuals does not increase/decrease except for a few values, however, this isn't enough evidence to say that the homoscedasticity assumption is invalid. This is further backed up by a straight, nearly horizontal red line in the scale-location plot with an even random scattering of residuals around it. The points follow a straight line in the QQ plot with the tails deviating slightly but not extreme enough to indicate the normality assumption is invalid. The cooks distance plot shows no influential points are present in the data.
 
 ```{r,echo=F,fig.height=6}
 #Producing diagnostic plots
@@ -399,7 +399,7 @@ log(y_{ijkwz})=\beta_{0}+\beta_{1}x_{ijkwz}+\beta_{2}x_{ijkwz}^{2}+\alpha_{j}^{G
 Where $\alpha_{M}^{G}=\alpha_{1}^{S}=\alpha_{Priv}^{T}=\alpha_{FT}^{L}=\alpha^{SG}_{Mk}=\alpha^{SG}_{j1}=0$, $j \in \{M,F\}, k \in \{1,2,3,4,5+\}, w \in \{Pub,Priv,Own\}, z \in \{FT,PT,U,I\}$ and $i \in \{1,...,n_{jkwz}\}$ with $n_{jkwz}$ number households with the $j^{th}$ sex of household head, $k^{th}$ number of persons in the household, $w^{th}$ tenure type and $z^{th}$ labour force type.
 \newline
 
-Due to the model being a log-linear model the explanatory variables have a multiplicative effect on the weekly expenditure. Exponentiating the estimated coefficients to find their effect on expenditure gives the below [*Table 7*]. I note that all values have been rounded to 3 decimal places thus the zero p-values are due to p-values being too small be displayed and similarly the effect of income squared is too small to be shown. My following inference will be based on this table and I use a significance level of 5% for all results.
+Due to the model being a log-linear model the explanatory variables have a multiplicative effect on expenditure. Exponentiating the estimated coefficients to find their effect on expenditure gives the below table. I note that all values have been rounded to 4 decimal places thus the zero p-values are due to p-values being too small to be displayed and similarly for effect of income squared. My following inference will be based on this table and I use a significance level of 5%.
 
 ```{r,echo=F}
 #Calculating confidence intervals 
@@ -407,26 +407,24 @@ Due to the model being a log-linear model the explanatory variables have a multi
 lwr <-exp(tidy(lm.final.model)$estimate+c(-1)*qnorm(0.975)*tidy(lm.final.model)$std.error)
 upr <- exp(tidy(lm.final.model)$estimate+c(1)*qnorm(0.975)*tidy(lm.final.model)$std.error)
 
-Point.estimates <- round(exp(tidy(lm.final.model)[,2]),3)
-p.values <- round(tidy(lm.final.model)[,5],3)
+Point.estimates <- round(exp(tidy(lm.final.model)[,2]),4)
+p.values <- round(tidy(lm.final.model)[,5],4)
 
 
 #Producing tables to display result
 knitr::kable(data.frame("coefficent"=tidy(lm.final.model)[,1],
                  Point.estimates,
-                 "Confidence Interval 95%"=c(paste("(",round(lwr,3),", ",round(upr,3),")")),
-                 p.values),digits=3,caption = "Summary of exponentiated variables affecting expeniture")%>%
+                 "Confidence Interval 95%"=c(paste("(",round(lwr,4),", ",round(upr,4),")")),
+                 p.values),digits=4,caption = "Summary of exponentiated variables affecting expeniture")%>%
   row_spec(0,bold=T)%>%
   kable_styling(full_width=F,latex_options = "HOLD_position",position= "center")
 
 ```
-First, interpreting the intercept value, it is for a male headed household of 1 person in full time employment in a publicly rented property who has an income of £0. Clearly this does not make sense (having a job which pays no income). 
+The difference between full time work and being unemployed was highly statistically significant. With unemployed households compared to full time employment households having a 95% confidence interval (CI) of [0.659, 0.915] which corresponds to a **8.5%** to **34.1%** decrease in expenditure with all other variables held constant. Furthermore, as the CI of unemployed and part-time employment do not overlap there is a statistically significant increase in expenditure if a household is in part time employment compared to unemployed households with all other variables held constant.
 
-The difference between full time work and being unemployed was highly statistically significant. With unemployed households compared to full time employment households having a 95% CI of [0.659, 0.915] which corresponds to a **8.5%** to **34.1%** decrease in expenditure with all other variables held constant. Furthermore, as the CI of unemployed and part-time employment do not overlap there is a statistically significant increase in expenditure if a household is in part time employment compared to unemployed households with all other variables held constant.
+However the difference between full time work and being inactive or in part time work was not significant (the 95% CI included 1) therefore with all other variables constant there is no evidence that being in one of these three employment groups compared to another influences the expenditure of the household.
 
-However the difference between full time work and being inactive or in part time work was not significant (the 95% CI included 1) therefore with all other variables constant there is no evidence that being in one of these 3 factors compared to another influences the expenditure of the household.
-
-The difference between a households expenditure for households which live in a publicly rented property and either a privately rented or owned property were statistically significant. With the associated 95% CI of [1.22, 1.441] and [1.115 , 1.281] which corresponds to a **22%** to **44.1%** and a **11.5%** **28.1%** increase in expenditure respectively with all other variables held constant.
+The difference between a households expenditure for households which live in a publicly rented property and either a privately rented or owned property were statistically significant. With the associated 95% CI of [1.22, 1.441] and [1.115 , 1.281] respectively which corresponds to a **22%** to **44.1%** and a **11.5%** to **28.1%** increase in expenditure respectively with all other variables held constant.
 
 Sex of household head and household size have an interaction between them therefore cannot be reported separately. To easily display the effects of both on expenditure I created the below table which displays the multiplicative effect of sex and household size on expenditure.
 
@@ -486,11 +484,11 @@ data.frame(t(data.frame("Male head"=male.CI, "Female head"=female.CI)))%>%
 ```
 
 
-For households of size 1,2 and 4 a female household head corresponds to an increase in expenditure compared to a male household of size 1, however for a household of size 3 or 5+ there is not enough evidence to support a difference in expenditure (CI includes 1). I note the confidence intervals are very large for female headed households of size 2 and above, this means there is alot of variation in the data causing the uncertainty in the results. This could be due to the small sample of female household heads of size 3 and above (insufficient power) or additional confounders affecting female household heads that were not included in the analysis.
+For households of size 1,2 and 4 a female household head corresponds to an increase in expenditure compared to a male household of size 1, however for a household of size 3 or 5+ there is no evidence of a difference in expenditure (the CI includes 1). I note the confidence intervals are very large for female headed households of size 2 and above, this means there is alot of variation in the data causing the uncertainty in the results. This could be due to the small sample of female household heads of size 3 and above (insufficient power) or additional confounders affecting female household heads that were not included in the analysis.
 
 Compared to a household of size 1, all larger sized households increase expenditure if the household head is male with an increase of expenditure of **22.4%** to **45.5%**, **36.2%** to **71.9%**, **31.3%** to **66.8%** and **34.9%** to **81.6%** for households of size 2, 3, 4 and 5+ respectively with all other variables held constant. There is no evidence larger households increase expenditure for female headed households as the 95% CI's overlap for all household sizes.
 
-Due to income having a squared term the effect of an increase in income on expenditure depends on the initial value of income. To demonstrate this I produced the plot below showing how the percent increase in expenditure varies with the initial income of a household for several different increases in household income. For all but the most extreme household incomes (over £1000), income has a positive effect on expenditure with the higher the initial income the less of a positive effect on expenditure an increase in income has (seen by negative gradient in below plot and which is due to the negative income squared regression coefficient). 
+Due to income having a squared term the effect of an increase in income on expenditure depends on the initial value of income. To demonstrate this I produced the plot below showing how the percent increase in expenditure varies with the initial income of a household for several different increases in household income. For all but the most extreme household incomes (slightly over £1000), income has a positive effect on expenditure. With the higher the initial income the less of a positive effect on expenditure an increase in income has (seen by negative gradient in below plot and which is due to the negative income squared regression coefficient). 
 ```{r,include=F}
 #calculating percent increase
 beta_1 <- 0.002285
@@ -532,16 +530,10 @@ ggplot(aes(Init.inc,Inc.expend,colour=Inc.inc),data=income.affect.df)+
 ```
 
 
-Overall an increase in income (except for extremely high incomes), living in a owned or privately rented property compared to a publicly rented property and being in full or part time employment compared to unemployed increases the expenditure of the household. With household size increasing income if household head is male and being a female household head increases expenditure for certain household sizes (1, 2 and 4) and having no proven effect for others (3 and 5+).
+Overall an increase in income (except for intially extremely high incomes), living in an owned or privately rented property compared to a publicly rented property and being in full or part time employment compared to unemployed increases the expenditure of the household. With household size increasing income if household head is male and being a female household head increases expenditure for certain household sizes (1, 2 and 4) and having no proven effect for others (3 and 5+).
 
-I note that even though the variables mentions above had a  statistically significant association with expenditure this could be spurious and due to confounding from variables not included in the model, simple chance or bias from the sample the model was based on. However, some areas of confidence of causation due to logical arguments are:
+It is important to remember that the relationships found in this analysis does not imply causation as they may be affected by confounding, chance or bias from the sample the model was based on. Including additional factors that could potentially be confounders such as the age of the household head, ethnicity of household and location of household would improve the confidence in the relationships found. Furthermore, a larger sample would enable the effect of sex of household head to be better understood for all household sizes.
 
-* Income, logically if you make more money you have more available to spend thus increasing expenditure
-* Household size, larger households are more expensive thus require more spending
-* Labour force, if you are unemployed compared to having work you are likely to be more frugal and thus reduce expenditure
-
-Further investigation is required for the affect of sex of household head as due to the small sub samples for some household sizes. Furthermore additional factors such as the age of the household head, ethnicity of household and location of household may improve the models accuracy.
-
-Also I note that generalization of these results may not be possible as different countries, cultures and ethnicities may have different attitudes on spending. As there was no information on where/when the original sample was drawn from and the process for sample selection I cannot recommend what groups/ areas these results may be representative of.  
+I note that generalization of these results may not be possible as different countries, cultures and ethnicities may have different attitudes on spending. As there was no information on where/when the original sample was drawn from and the process for sample selection I cannot recommend what groups/ areas these results may be representative of.  
 
 
