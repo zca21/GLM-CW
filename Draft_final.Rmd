@@ -422,7 +422,7 @@ knitr::kable(data.frame("coefficent"=tidy(lm.final.model)[,1],
 ```
 First, interpreting the intercept value, it is for a male headed household of 1 person in full time employment in a publicly rented property who has an income of £0. Clearly this does not make sense (having a job which pays no income). 
 
-The difference between full time work and being unemployed was highly statistically significant. With unemployed households compared to full time employment households having a 95% CI of [0.659, 0.915] which corresponds to a **8.5%** to **34.1%** decrease in expenditure with all other variables held constant.
+The difference between full time work and being unemployed was highly statistically significant. With unemployed households compared to full time employment households having a 95% CI of [0.659, 0.915] which corresponds to a **8.5%** to **34.1%** decrease in expenditure with all other variables held constant. Furthermore, as the CI of unemployed and part-time employment do not overlap there is a statistically significant increase in expenditure if a household is in part time employment compared to unemployed households with all other variables held constant.
 
 However the difference between full time work and being inactive or in part time work was not significant (the 95% CI included 1) therefore with all other variables constant there is no evidence that being in one of these 3 factors compared to another influences the expenditure of the household.
 
@@ -482,13 +482,13 @@ data.frame(t(data.frame("Male head"=male.CI, "Female head"=female.CI)))%>%
          "5+ Persons"="X5")%>%
   kable(caption = "95% CI of multiplcative effect on expenditure compared to male headed household of 1 person",format = 'pandoc')
 
-table(expend.df$sex.hh,expend.df$hh.size)
+#table(expend.df$sex.hh,expend.df$hh.size)
 ```
 
 
-For households of size 1,2 and 4 a female household head corresponds to an increase in expenditure compared to a male household of size 1 however, for a household of size 3 or 5+ there is not enough evidence to support a difference in expenditure (CI includes 1). I note the confidence intervals are very large thus there is alot of uncertainty in these results and thus the reason for no found effect may be due to insufficient power of thr sample.
+For households of size 1,2 and 4 a female household head corresponds to an increase in expenditure compared to a male household of size 1, however for a household of size 3 or 5+ there is not enough evidence to support a difference in expenditure (CI includes 1). I note the confidence intervals are very large for female headed households of size 2 and above, this means there is alot of variation in the data causing the uncertainty in the results. This could be due to the small sample of female household heads of size 3 and above (insufficient power) or additional confounders affecting female household heads that were not included in the analysis.
 
-Compared to a household of size 1 all larger households increase expenditure if household head is male whereas due to the uncertainty there is no evidence this is the case for female household heads due to overlapping CI.
+Compared to a household of size 1, all larger sized households increase expenditure if the household head is male with an increase of expenditure of **22.4%** to **45.5%**, **36.2%** to **71.9%**, **31.3%** to **66.8%** and **34.9%** to **81.6%** for households of size 2, 3, 4 and 5+ respectively with all other variables held constant. There is no evidence larger households increase expenditure for female headed households as the 95% CI's overlap for all household sizes.
 
 Due to income having a squared term the effect of an increase in income on expenditure depends on the initial value of income. To demonstrate this I produced the plot below showing how the percent increase in expenditure varies with the initial income of a household for several different increases in household income. For all but the most extreme household incomes (over £1000), income has a positive effect on expenditure with the higher the initial income the less of a positive effect on expenditure an increase in income has (seen by negative gradient in below plot and which is due to the negative income squared regression coefficient). 
 ```{r,include=F}
@@ -532,10 +532,7 @@ ggplot(aes(Init.inc,Inc.expend,colour=Inc.inc),data=income.affect.df)+
 ```
 
 
-
-
-
-Overall an increase in income (except for extremely high incomes), higher household size, being household with a female head and living in a owned or privately rented increase the expenditure of the household (compared to a single male headed household living in a publicly rented house, unless a female head with size 3 household). Whereas being unemployed compared to in full time work decreases the expenditure of the household.
+Overall an increase in income (except for extremely high incomes), living in a owned or privately rented property compared to a publicly rented property and being in full or part time employment compared to unemployed increases the expenditure of the household. With household size increasing income if household head is male and being a female household head increases expenditure for certain household sizes (1, 2 and 4) and having no proven effect for others (3 and 5+).
 
 I note that even though the variables mentions above had a  statistically significant association with expenditure this could be spurious and due to confounding from variables not included in the model, simple chance or bias from the sample the model was based on. However, some areas of confidence of causation due to logical arguments are:
 
@@ -543,8 +540,8 @@ I note that even though the variables mentions above had a  statistically signif
 * Household size, larger households are more expensive thus require more spending
 * Labour force, if you are unemployed compared to having work you are likely to be more frugal and thus reduce expenditure
 
-Further investigation is required for the affect of sex of household head as due to the small sub samples t
+Further investigation is required for the affect of sex of household head as due to the small sub samples for some household sizes. Furthermore additional factors such as the age of the household head, ethnicity of household and location of household may improve the models accuracy.
 
-may be required for tenure type as it could be other variables which cause a difference in tenure are responsible.
+Also I note that generalization of these results may not be possible as different countries, cultures and ethnicities may have different attitudes on spending. As there was no information on where/when the original sample was drawn from and the process for sample selection I cannot recommend what groups/ areas these results may be representative of.  
 
 
