@@ -1,0 +1,3 @@
+```{r}
+knitr::purl("Draft_final.Rmd",documentation = 2)
+```
