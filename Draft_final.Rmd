@@ -44,6 +44,7 @@ hist(expend.df$expenditure,breaks = 20,
      xlab = "Total weekly household expenditure (£)",
      main = "Histogram of expenditure")
 ```
+
 ```{r,include=F}
 #calculating mean of expenditure
 mean.expend <- mean(expend.df$expenditure)
@@ -238,8 +239,10 @@ The model from part 5, $log(y_{i})=\beta_{0}+\beta_{1}x_{i}+\beta_{2}x^2_{i}+\ep
 The chosen model is a log-linear model which means that the covarites (income and income squared) have a multiplicative effect on the response (expenditure). Both variables were statistically significant at $\alpha = 0.05$. The squared term of income, means that the effect of income on expenditure depends on the initial value of income. Due to the negative value of the squared income regression coefficient the lower the initial value of income the greater the percent increase in expenditure for a given increase in income.  Overall, income has a positive association with expenditure in the model with an increase in income causing a percent increase in expenditure (for all but the most extreme initial values of income slightly over £1060). In particular, using a realistic increase in weekly income of £20 for a household earning the mean income of £512 gives an increase of $(\frac{exp(532\beta_1+532^{2}\beta_{2})}{exp(512\beta_1+512^{2}\beta_{2})}-1)$x100% = **3.25%** in household expenditure.
 
 ```{r,include=F}
-#calculating percent increase
+#finaing mean income
+mean(expend.df$income)
 
+#calculating percent increase
 model.p5.increase <- function(initial,increase){
   #values of regression coefficients
   beta_1 <- 3.117180e-03	
@@ -359,12 +362,14 @@ lm.log.full<-lm(log(expenditure)~income*lab.force+I(income^2)+income*house.ten+
                   income*hh.size+sex.hh*hh.size+lab.force:house.ten,data=expend.df)
 
 AIC(lm.log.full)
+#AIC is 1391.914
 
 #Iteratively performing model selection process
 drop1(lm.log.full)
 #removing lab.force:house.ten will decrease AIC
 lm.full.1.deletion <- update(lm.log.full,.~.-lab.force:house.ten)
 AIC(lm.full.1.deletion)
+#AIC is 1386.878
 
 drop1(lm.full.1.deletion)
 #removing any variables increases AIC thus stop iterative process
@@ -409,6 +414,7 @@ drop1(lm.simple.model.1)
 lm.final.model <- lm.simple.model.1
 
 AIC(lm.final.model)
+# AIC is 1406.732
 ```
 
 Producing diagnostic plots for this final model (seen below) there is no evidence of issues with the model fit. The residuals display a random scattering of points indicating the linearity assumption has been met. The straight, nearly horizontal red line in the scale-location plot with an even random scattering of residuals around it indicates no issue with homoscedasticity. The points follow a straight line in the QQ plot with the tails deviating slightly but not extreme enough to indicate the normality assumption is invalid. The cooks distance plot shows no influential points are present in the data.
@@ -427,6 +433,22 @@ log(y_{ijkwz})=\beta_{0}+\beta_{1}x_{ijkwz}+\beta_{2}x_{ijkwz}^{2}+\alpha_{j}^{G
 \end{equation*}
 Where $\alpha_{M}^{G}=\alpha_{1}^{S}=\alpha_{Priv}^{T}=\alpha_{FT}^{L}=\alpha^{SG}_{Mk}=\alpha^{SG}_{j1}=0$, $j \in \{M,F\}, k \in \{1,2,3,4,5+\}, w \in \{Pub,Priv,Own\}, z \in \{FT,PT,U,I\}$ (FT is full time, PT is part time, U is unemployed and I is inactive) and $i \in \{1,...,n_{jkwz}\}$ with $n_{jkwz}$ number households with the $j^{th}$ sex of household head, $k^{th}$ number of persons in the household, $w^{th}$ household tenure type and $z^{th}$ employment staus type.
 \newline
+
+```{r, include=F}
+#Finding more precise value of income squared than table provides
+options(digits=10)
+
+#estimate of exp regression coefficient
+round(exp(tidy(lm.final.model)$estimate[6]),8)
+#0.99999896
+
+#lower and upper of 95% CI
+round(exp(tidy(lm.final.model)$estimate[6]-1.96*tidy(lm.final.model)$std.error[6]),8)
+#0.99999866
+round(exp(tidy(lm.final.model)$estimate[6]+1.96*tidy(lm.final.model)$std.error[6]),8)
+#0.99999927
+```
+
 
 Due to the model being a log-linear model the explanatory variables have a multiplicative effect on expenditure. Exponentiating the estimated coefficients to find their effect on expenditure gives the below table. I note that all values have been rounded to 4 decimal places thus the zero p-values are due to the p-values being too small to be displayed and similarly for the effect of income squared. The exponentiated estimate of the income squared regression coefficient is 0.99999896 (8 d.p.) with a 95% confidence interval (CI) of [0.99999866, 0.99999927]. My following inference will be based on this table using a significance level of 5%.
 
