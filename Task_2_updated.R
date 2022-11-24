@@ -1,9 +1,9 @@
----
-title: "Untitled"
-output: html_document
-date: "2022-11-11"
----
-```{r}
+#' ---
+#' title: "Untitled"
+#' output: html_document
+#' date: "2022-11-11"
+#' ---
+## -----------------------------------------------------------------------------------------------------------------------------------------------
 #Setting up enviroment
 setwd("~/Desktop/GLM/Coursework/GLM-CW")
 airline.df <- read.table("airline.txt",header=T)
@@ -13,9 +13,9 @@ n <- dim(airline.df)[[1]]
 con <- rep(1,n)
 X=matrix(c(con,airline.df$x),nrow=n,ncol=2)
 y <- airline.df$y
-```
 
-```{r}
+#' 
+## -----------------------------------------------------------------------------------------------------------------------------------------------
 #Part 2
 
 #Setting conditions of when to end fisher scoring algorithm
@@ -58,9 +58,9 @@ beta.iteration <- beta.ini[complete.cases(beta.ini),]
 beta.fin=beta.ini[c,]
 
 beta.fin
-```
 
-```{r}
+#' 
+## -----------------------------------------------------------------------------------------------------------------------------------------------
 #Part 3
 #finding the variance-covariance matrix
 solve(t(X)%*%X)
@@ -81,11 +81,11 @@ qnorm(0.975)
 
 #p-value calculation
 1-pnorm(T.stat)
-```
 
-```{r}
+#' 
+## -----------------------------------------------------------------------------------------------------------------------------------------------
 #Checking with R's own function
 fit <- glm(y~X[,2], family  = Gamma(link="log"))
 summary(fit,dispersion=1)  
-```
 
+#' 
